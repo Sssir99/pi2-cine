@@ -1,7 +1,7 @@
 # Pi2 Cine Web App
 
 App web tipo catálogo para publicar películas y series en modo Administrador.
-Proyecto Integrado 2 / Ingeniería Web II — IU Digital de Antioquia.
+Proyecto Integrado 2 — IU Digital de Antioquia.
 
 ## Stack
 
