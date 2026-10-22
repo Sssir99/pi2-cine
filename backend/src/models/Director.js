@@ -1,3 +1,5 @@
+// Modelo Director: director principal de una producción (nombres, estado).
+// fechaCreacion y fechaActualizacion se generan automáticamente (timestamps de Mongoose).
 const mongoose = require('mongoose');
 
 const directorSchema = new mongoose.Schema(

@@ -1,3 +1,5 @@
+// Modelo Tipo: clasificación de la producción (película o serie). No lleva estado.
+// fechaCreacion y fechaActualizacion se generan automáticamente (timestamps de Mongoose).
 const mongoose = require('mongoose');
 
 const tipoSchema = new mongoose.Schema(

@@ -1,3 +1,8 @@
+// Modelo Media: película o serie (serial y url únicos).
+// genero/director/productora/tipo son ObjectId que referencian sus colecciones.
+// MongoDB NO fuerza integridad referencial: validar en el controller que genero,
+// director y productora existan y estén 'activo', y que tipo exista.
+// fechaCreacion y fechaActualizacion se generan automáticamente (timestamps de Mongoose).
 const mongoose = require('mongoose');
 
 const mediaSchema = new mongoose.Schema(

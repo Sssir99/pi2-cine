@@ -1,3 +1,5 @@
+// Modelo Género: catálogo de géneros (nombre único, estado, descripción).
+// fechaCreacion y fechaActualizacion se generan automáticamente (timestamps de Mongoose).
 const mongoose = require('mongoose');
 
 const generoSchema = new mongoose.Schema(

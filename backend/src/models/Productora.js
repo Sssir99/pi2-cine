@@ -1,3 +1,5 @@
+// Modelo Productora: empresa productora (nombre único, estado, slogan, descripción).
+// fechaCreacion y fechaActualizacion se generan automáticamente (timestamps de Mongoose).
 const mongoose = require('mongoose');
 
 const productoraSchema = new mongoose.Schema(

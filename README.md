@@ -41,6 +41,14 @@ pi2-cine/
 4. `npm run seed`  → carga los 5 géneros y 2 tipos (solo la primera vez)
 5. `npm run dev`   → servidor en http://localhost:3000
 
+## Para el equipo (al clonar el repo)
+
+- El `.env` NO se sube al repo (está en `.gitignore`). Cada integrante crea el suyo en `backend/.env` con la cadena `mongodb+srv://` del mismo cluster (Atlas → Connect → Drivers).
+- La base de datos se llama `cine`.
+- En Atlas, Network Access debe permitir la IP de cada uno o dejar "Allow access from anywhere" (0.0.0.0/0) para desarrollo.
+- `fechaCreacion` y `fechaActualizacion` las genera el sistema; NO se envían en el body.
+- El contrato de endpoints está en `RUTAS.md`: cada módulo implementa su controller y rutas siguiéndolo.
+
 ## Entidades (módulos)
 
 1. Género — nombre, estado, descripción
