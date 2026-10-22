@@ -64,6 +64,7 @@ Todos los endpoints responden JSON.
 
 - 200: OK (GET, PUT)
 - 201: creado (POST)
-- 400: body inválido o validación fallida
+- 400: body inválido, validación fallida o `:id` sin formato de ObjectId
 - 404: no existe (GET/:id, PUT/:id, DELETE/:id con id inexistente)
+- 409: conflicto — valor único ya existente (nombre, serial, url)
 - 500: error del servidor
