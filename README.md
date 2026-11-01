@@ -41,6 +41,25 @@ pi2-cine/
 4. `npm run seed`  → carga los 5 géneros y 2 tipos (solo la primera vez)
 5. `npm run dev`   → servidor en http://localhost:3000
 
+## Estado de los módulos (API implementada)
+
+Los 5 módulos están implementados con CRUD completo (GET, GET/:id, POST, PUT, DELETE) y registrados en `src/app.js`:
+
+| Módulo    | Ruta base          | Archivos                                        |
+|-----------|--------------------|-------------------------------------------------|
+| Género    | `/api/generos`     | `controllers/generoController.js` + `routes/generoRoutes.js` |
+| Director  | `/api/directores`  | `controllers/directorController.js` + `routes/directorRoutes.js` |
+| Productora| `/api/productoras` | `controllers/productoraController.js` + `routes/productoraRoutes.js` |
+| Tipo      | `/api/tipos`       | `controllers/tipoController.js` + `routes/tipoRoutes.js` |
+| Media     | `/api/media`       | `controllers/mediaController.js` + `routes/mediaRoutes.js` |
+
+Middlewares compartidos (`src/middleware/`):
+
+- `validarId.js` → responde 400 si el `:id` no tiene formato de ObjectId (se usa en todas las rutas con `:id`).
+- `errorHandler.js` → manejador central: 409 si se repite un valor único, 400 si falla una validación, 404 si el registro no existe y 500 ante cualquier otro error.
+
+Media valida además que el género, el director y la productora existan y estén `activo`, y que el tipo exista, antes de crear o actualizar.
+
 ## Para el equipo (al clonar el repo)
 
 - El `.env` NO se sube al repo (está en `.gitignore`). Cada integrante crea el suyo en `backend/.env` con la cadena `mongodb+srv://` del mismo cluster (Atlas → Connect → Drivers).
