@@ -1,6 +1,6 @@
 const express = require('express');
 const validarId = require('../middleware/validarId');
-const directorController = require('../controllers/directorController');
+const productoraController = require('../controllers/productoraController');
 
 const router = express.Router();
 

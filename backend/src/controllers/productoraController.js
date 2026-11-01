@@ -1,4 +1,4 @@
-const Productora = require('../models/productoraModel');
+const Productora = require('../models/Productora');
 
 const listar = async (req, res, next) => {
     try {
