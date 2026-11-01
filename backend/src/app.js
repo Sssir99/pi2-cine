@@ -2,6 +2,7 @@ const express = require('express');
 
 const generoRoutes = require('./routes/generoRoutes');
 const mediaRoutes = require('./routes/mediaRoutes');
+const tipoRoutes = require('./routes/tipoRoutes');
 const errorHandler = require('./middleware/errorHandler');
 
 
@@ -17,7 +18,7 @@ app.get('/api', (req, res) => {
 // Rutas de la API (un módulo por archivo; agregar los demás aquí)
 app.use('/api/generos', generoRoutes);
 app.use('/api/media', mediaRoutes);
-
+app.use('/api/tipos', tipoRoutes);
 // Manejador central de errores (SIEMPRE al final)
 app.use(errorHandler);
 
