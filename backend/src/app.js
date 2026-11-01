@@ -4,6 +4,9 @@ const generoRoutes = require('./routes/generoRoutes');
 const mediaRoutes = require('./routes/mediaRoutes');
 const directorRoutes = require('./routes/directorRoutes');
 const productoraRoutes = require('./routes/productoraRoutes');
+const tipoRoutes = require('./routes/tipoRoutes');
+const errorHandler = require('./middleware/errorHandler');
+
 
 const app = express();
 
@@ -20,6 +23,7 @@ app.use('/api/media', mediaRoutes);
 app.use('/api/directores', directorRoutes);
 app.use('/api/productoras', productoraRoutes);
 
+app.use('/api/tipos', tipoRoutes);
 // Manejador central de errores (SIEMPRE al final)
 app.use(errorHandler);
 
