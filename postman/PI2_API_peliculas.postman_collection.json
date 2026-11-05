@@ -1,0 +1,1734 @@
+{
+  "info": {
+    "name": "PI2 — API películas y series",
+    "description": "Colección de pruebas de la API REST de Proyecto Integrado 2 (IU Digital de Antioquia).\n\nCómo usarla:\n1. Levanta la API con `npm start` en la carpeta backend (http://localhost:3000).\n2. Importa este archivo en Postman (Import → File).\n3. Corre la colección completa con Collection → Run, en orden: 00 a 06.\n\nEl orden importa: las carpetas 01 a 04 crean y guardan los ids de género, director, productora y tipo, y la carpeta 05 los usa para crear la película. La carpeta 06 borra todo lo creado y deja la base limpia.\n\nCada petición trae su prueba automática: en la pestaña Test Results debe quedar en verde con el código HTTP esperado.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api"
+    },
+    {
+      "key": "generoId",
+      "value": ""
+    },
+    {
+      "key": "generoNombre",
+      "value": ""
+    },
+    {
+      "key": "directorId",
+      "value": ""
+    },
+    {
+      "key": "productoraId",
+      "value": ""
+    },
+    {
+      "key": "productoraNombre",
+      "value": ""
+    },
+    {
+      "key": "tipoId",
+      "value": ""
+    },
+    {
+      "key": "tipoNombre",
+      "value": ""
+    },
+    {
+      "key": "mediaId",
+      "value": ""
+    },
+    {
+      "key": "mediaSerial",
+      "value": ""
+    },
+    {
+      "key": "mediaUrl",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "00 · Comprobación",
+      "item": [
+        {
+          "name": "API en línea",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": []
+            },
+            "description": "Confirma que el servidor responde. Debe devolver el mensaje 'API de películas y series (PI2) en línea'."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 200
+        }
+      ]
+    },
+    {
+      "name": "01 · Géneros",
+      "item": [
+        {
+          "name": "Crear género (201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/generos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "generos"
+              ]
+            },
+            "description": "Crea un género con nombre único usando la marca de tiempo. Guarda su id y su nombre.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Genero {{$timestamp}}\",\n  \"descripcion\": \"Creado desde Postman\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));",
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set(\"generoId\", j._id);",
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set(\"generoNombre\", j.nombre);"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 201
+        },
+        {
+          "name": "Crear género duplicado (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/generos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "generos"
+              ]
+            },
+            "description": "Repite el mismo nombre: el índice único de la base lo rechaza y el errorHandler responde 409.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"{{generoNombre}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\", () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 409
+        },
+        {
+          "name": "Listar géneros (200)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/generos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "generos"
+              ]
+            },
+            "description": "Devuelve todos los géneros; la lista debe incluir el que se acaba de crear."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 200
+        },
+        {
+          "name": "Consultar género por id (200)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/generos/{{generoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "generos",
+                "{{generoId}}"
+              ]
+            },
+            "description": "Consulta el género creado usando el id guardado."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 200
+        },
+        {
+          "name": "Actualizar género (200)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/generos/{{generoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "generos",
+                "{{generoId}}"
+              ]
+            },
+            "description": "Actualiza el género. La fecha de actualización se renueva sola.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"{{generoNombre}}\",\n  \"estado\": \"activo\",\n  \"descripcion\": \"Actualizado desde Postman\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 200
+        },
+        {
+          "name": "Género inexistente (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/generos/000000000000000000000000",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "generos",
+                "000000000000000000000000"
+              ]
+            },
+            "description": "ObjectId válido pero sin registro: 404."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 404\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 404
+        },
+        {
+          "name": "Género con id mal formado (400)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/generos/123",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "generos",
+                "123"
+              ]
+            },
+            "description": "El middleware validarId lo frena antes de llegar a la base: 400."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 400
+        }
+      ]
+    },
+    {
+      "name": "02 · Directores",
+      "item": [
+        {
+          "name": "Crear director (201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/directores",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "directores"
+              ]
+            },
+            "description": "Crea un director. Guarda su id.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombres\": \"Director {{$timestamp}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));",
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set(\"directorId\", j._id);"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 201
+        },
+        {
+          "name": "Listar directores (200)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/directores",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "directores"
+              ]
+            },
+            "description": "Devuelve todos los directores."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 200
+        },
+        {
+          "name": "Consultar director por id (200)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/directores/{{directorId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "directores",
+                "{{directorId}}"
+              ]
+            },
+            "description": "Consulta el director creado."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 200
+        },
+        {
+          "name": "Actualizar director (200)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/directores/{{directorId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "directores",
+                "{{directorId}}"
+              ]
+            },
+            "description": "Actualiza el nombre del director.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombres\": \"Director {{$timestamp}} editado\",\n  \"estado\": \"activo\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 200
+        },
+        {
+          "name": "Director sin nombres (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/directores",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "directores"
+              ]
+            },
+            "description": "El campo nombres es obligatorio: 400 con el mensaje de validación.",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 400
+        },
+        {
+          "name": "Director inexistente (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/directores/000000000000000000000000",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "directores",
+                "000000000000000000000000"
+              ]
+            },
+            "description": "Id válido sin registro: 404."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 404\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 404
+        },
+        {
+          "name": "Director con id mal formado (400)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/directores/123",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "directores",
+                "123"
+              ]
+            },
+            "description": "Id sin formato de ObjectId: 400."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 400
+        }
+      ]
+    },
+    {
+      "name": "03 · Productoras",
+      "item": [
+        {
+          "name": "Crear productora (201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/productoras",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "productoras"
+              ]
+            },
+            "description": "Crea una productora. Guarda su id y su nombre.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Productora {{$timestamp}}\",\n  \"slogan\": \"Slogan de prueba\",\n  \"descripcion\": \"Creada desde Postman\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));",
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set(\"productoraId\", j._id);",
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set(\"productoraNombre\", j.nombre);"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 201
+        },
+        {
+          "name": "Crear productora duplicada (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/productoras",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "productoras"
+              ]
+            },
+            "description": "Repite el nombre: 409 por el índice único.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"{{productoraNombre}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\", () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 409
+        },
+        {
+          "name": "Listar productoras (200)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/productoras",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "productoras"
+              ]
+            },
+            "description": "Devuelve todas las productoras."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 200
+        },
+        {
+          "name": "Consultar productora por id (200)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/productoras/{{productoraId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "productoras",
+                "{{productoraId}}"
+              ]
+            },
+            "description": "Consulta la productora creada."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 200
+        },
+        {
+          "name": "Actualizar productora (200)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/productoras/{{productoraId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "productoras",
+                "{{productoraId}}"
+              ]
+            },
+            "description": "Actualiza el slogan.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"{{productoraNombre}}\",\n  \"slogan\": \"Slogan actualizado\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 200
+        },
+        {
+          "name": "Productora inexistente (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/productoras/000000000000000000000000",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "productoras",
+                "000000000000000000000000"
+              ]
+            },
+            "description": "Id válido sin registro: 404."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 404\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 404
+        },
+        {
+          "name": "Productora con id mal formado (400)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/productoras/123",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "productoras",
+                "123"
+              ]
+            },
+            "description": "Id sin formato de ObjectId: 400."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 400
+        }
+      ]
+    },
+    {
+      "name": "04 · Tipos",
+      "item": [
+        {
+          "name": "Crear tipo (201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tipos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tipos"
+              ]
+            },
+            "description": "Crea un tipo. El modelo Tipo no tiene campo estado. Guarda id y nombre.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Tipo {{$timestamp}}\",\n  \"descripcion\": \"Creado desde Postman\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));",
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set(\"tipoId\", j._id);",
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set(\"tipoNombre\", j.nombre);"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 201
+        },
+        {
+          "name": "Crear tipo duplicado (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tipos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tipos"
+              ]
+            },
+            "description": "Repite el nombre: 409 por el índice único.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"{{tipoNombre}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\", () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 409
+        },
+        {
+          "name": "Listar tipos (200)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tipos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tipos"
+              ]
+            },
+            "description": "Debe traer al menos película y serie, más el creado."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 200
+        },
+        {
+          "name": "Consultar tipo por id (200)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tipos/{{tipoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tipos",
+                "{{tipoId}}"
+              ]
+            },
+            "description": "Consulta el tipo creado."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 200
+        },
+        {
+          "name": "Actualizar tipo (200)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tipos/{{tipoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tipos",
+                "{{tipoId}}"
+              ]
+            },
+            "description": "Actualiza la descripción.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"{{tipoNombre}}\",\n  \"descripcion\": \"Actualizado desde Postman\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 200
+        },
+        {
+          "name": "Tipo inexistente (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tipos/000000000000000000000000",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tipos",
+                "000000000000000000000000"
+              ]
+            },
+            "description": "Id válido sin registro: 404."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 404\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 404
+        },
+        {
+          "name": "Tipo con id mal formado (400)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tipos/123",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tipos",
+                "123"
+              ]
+            },
+            "description": "Id sin formato de ObjectId: 400."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 400
+        }
+      ]
+    },
+    {
+      "name": "05 · Media",
+      "item": [
+        {
+          "name": "Crear película (201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/media",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "media"
+              ]
+            },
+            "description": "Crea una película usando los ids guardados en las carpetas 01 a 04. Por eso Media va de última. Guarda su id, serial y url.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"serial\": \"SER-{{$timestamp}}\",\n  \"titulo\": \"Película de prueba\",\n  \"sinopsis\": \"Sinopsis creada desde Postman\",\n  \"url\": \"https://example.com/pelicula-{{$timestamp}}.mp4\",\n  \"imagenPortada\": \"https://example.com/portada.jpg\",\n  \"anioEstreno\": 2024,\n  \"genero\": \"{{generoId}}\",\n  \"director\": \"{{directorId}}\",\n  \"productora\": \"{{productoraId}}\",\n  \"tipo\": \"{{tipoId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));",
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set(\"mediaId\", j._id);",
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set(\"mediaSerial\", j.serial);",
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set(\"mediaUrl\", j.url);"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 201
+        },
+        {
+          "name": "Crear con serial repetido (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/media",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "media"
+              ]
+            },
+            "description": "Reutiliza el serial: el índice único lo rechaza con 409.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"serial\": \"{{mediaSerial}}\",\n  \"titulo\": \"Otra\",\n  \"url\": \"https://example.com/otra.mp4\",\n  \"genero\": \"{{generoId}}\",\n  \"director\": \"{{directorId}}\",\n  \"productora\": \"{{productoraId}}\",\n  \"tipo\": \"{{tipoId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\", () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 409
+        },
+        {
+          "name": "Crear con url repetida (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/media",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "media"
+              ]
+            },
+            "description": "Reutiliza la url: 409.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"serial\": \"OTRO-{{$timestamp}}\",\n  \"titulo\": \"Otra\",\n  \"url\": \"{{mediaUrl}}\",\n  \"genero\": \"{{generoId}}\",\n  \"director\": \"{{directorId}}\",\n  \"productora\": \"{{productoraId}}\",\n  \"tipo\": \"{{tipoId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\", () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 409
+        },
+        {
+          "name": "Crear con género inexistente (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/media",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "media"
+              ]
+            },
+            "description": "La regla del caso: el género debe existir y estar activo. Responde 400 con el motivo.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"serial\": \"SER-X-{{$timestamp}}\",\n  \"titulo\": \"Otra\",\n  \"url\": \"https://example.com/x-{{$timestamp}}.mp4\",\n  \"genero\": \"000000000000000000000000\",\n  \"director\": \"{{directorId}}\",\n  \"productora\": \"{{productoraId}}\",\n  \"tipo\": \"{{tipoId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 400
+        },
+        {
+          "name": "Crear sin campos obligatorios (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/media",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "media"
+              ]
+            },
+            "description": "Falta serial, url y las cuatro referencias: 400 con los mensajes de validación.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Incompleta\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 400
+        },
+        {
+          "name": "Crear con año fuera de rango (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/media",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "media"
+              ]
+            },
+            "description": "El año de estreno va de 1888 a 2100: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"serial\": \"SER-Y-{{$timestamp}}\",\n  \"titulo\": \"Otra\",\n  \"url\": \"https://example.com/y-{{$timestamp}}.mp4\",\n  \"anioEstreno\": 1800,\n  \"genero\": \"{{generoId}}\",\n  \"director\": \"{{directorId}}\",\n  \"productora\": \"{{productoraId}}\",\n  \"tipo\": \"{{tipoId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 400
+        },
+        {
+          "name": "Listar media (200)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/media",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "media"
+              ]
+            },
+            "description": "Devuelve todas las películas y series."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 200
+        },
+        {
+          "name": "Consultar media por id (200)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/media/{{mediaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "media",
+                "{{mediaId}}"
+              ]
+            },
+            "description": "Consulta la película creada."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 200
+        },
+        {
+          "name": "Actualizar media (200)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/media/{{mediaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "media",
+                "{{mediaId}}"
+              ]
+            },
+            "description": "Cambia el título y el año. Debía devolver 200 y el título nuevo.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"serial\": \"{{mediaSerial}}\",\n  \"titulo\": \"Película de prueba editada\",\n  \"url\": \"{{mediaUrl}}\",\n  \"anioEstreno\": 2025,\n  \"genero\": \"{{generoId}}\",\n  \"director\": \"{{directorId}}\",\n  \"productora\": \"{{productoraId}}\",\n  \"tipo\": \"{{tipoId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 200
+        },
+        {
+          "name": "Media inexistente (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/media/000000000000000000000000",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "media",
+                "000000000000000000000000"
+              ]
+            },
+            "description": "Id válido sin registro: 404."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 404\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 404
+        },
+        {
+          "name": "Media con id mal formado (400)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/media/123",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "media",
+                "123"
+              ]
+            },
+            "description": "Id sin formato de ObjectId: 400."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 400
+        }
+      ]
+    },
+    {
+      "name": "06 · Limpieza",
+      "item": [
+        {
+          "name": "Eliminar la película (200)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/media/{{mediaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "media",
+                "{{mediaId}}"
+              ]
+            },
+            "description": "Borra lo creado en las pruebas para dejar la base como estaba."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 200
+        },
+        {
+          "name": "Eliminar el género (200)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/generos/{{generoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "generos",
+                "{{generoId}}"
+              ]
+            },
+            "description": "Borra el género de la prueba."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 200
+        },
+        {
+          "name": "Eliminar el director (200)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/directores/{{directorId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "directores",
+                "{{directorId}}"
+              ]
+            },
+            "description": "Borra el director de la prueba."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 200
+        },
+        {
+          "name": "Eliminar la productora (200)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/productoras/{{productoraId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "productoras",
+                "{{productoraId}}"
+              ]
+            },
+            "description": "Borra la productora de la prueba."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 200
+        },
+        {
+          "name": "Eliminar el tipo (200)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tipos/{{tipoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tipos",
+                "{{tipoId}}"
+              ]
+            },
+            "description": "Borra el tipo de la prueba."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 200
+        },
+        {
+          "name": "Confirmar que la película ya no existe (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/media/{{mediaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "media",
+                "{{mediaId}}"
+              ]
+            },
+            "description": "Después del DELETE debe responder 404."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 404\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 404
+        }
+      ]
+    }
+  ]
+}
