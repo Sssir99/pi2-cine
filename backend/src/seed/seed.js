@@ -1,6 +1,7 @@
 // Seed: carga los datos iniciales (5 géneros y 2 tipos).
 // Idempotente: usa findOneAndUpdate con upsert, se puede ejecutar varias veces sin duplicar.
 require('dotenv').config();
+require('../config/dns');
 
 const mongoose = require('mongoose');
 const Genero = require('../models/Genero');
