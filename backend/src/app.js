@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 
 const generoRoutes = require('./routes/generoRoutes');
 const mediaRoutes = require('./routes/mediaRoutes');
@@ -11,6 +12,11 @@ const errorHandler = require('./middleware/errorHandler');
 const app = express();
 
 app.use(express.json());
+
+// CORS: la app de React corre en otro puerto (Vite 5173 / CRA 3000), así que el navegador
+// necesita permiso explícito. En desarrollo se permite cualquier origen; si algún día se
+// publica, se restringe con cors({ origin: ['https://midominio.com'] }).
+app.use(cors());
 
 // Ruta de comprobación
 app.get('/api', (req, res) => {

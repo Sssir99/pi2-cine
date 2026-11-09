@@ -58,6 +58,10 @@ Middlewares compartidos (`src/middleware/`):
 - `validarId.js` → responde 400 si el `:id` no tiene formato de ObjectId (se usa en todas las rutas con `:id`).
 - `errorHandler.js` → manejador central: 409 si se repite un valor único, 400 si falla una validación, 404 si el registro no existe y 500 ante cualquier otro error.
 
+CORS (`cors` en `src/app.js`): la API acepta peticiones desde cualquier origen en desarrollo, porque el
+frontend de React corre en otro puerto (Vite 5173 / CRA 3000). Para publicar, se restringe con
+`cors({ origin: ['https://midominio.com'] })`.
+
 Media valida además que el género, el director y la productora existan y estén `activo`, y que el tipo exista, antes de crear o actualizar.
 
 ## Para el equipo (al clonar el repo)
