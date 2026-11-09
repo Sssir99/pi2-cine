@@ -108,17 +108,20 @@ y ningún módulo comparte página con otro.
 - `BadgeEstado { estado }` — activo / inactivo.
 - `Portada { url, titulo }` — imagen si hay url; si no, recuadro con las iniciales del título.
 - `ModalFormulario { abierto, titulo, onCerrar, onGuardar, guardando, children }`.
-- `ModalConfirmar { abierto, titulo, texto, onConfirmar, onCerrar }` — borrado con el nombre del
-  registro dentro del texto, botón peligroso "Sí, eliminar" y cancelar por defecto.
-- `avisos.js` — `exito(msg)`, `error(msg)`, `confirmarBorrado(nombre)` que devuelve true/false.
+- `avisos.js` — **el único mecanismo de avisos y confirmaciones es SweetAlert2**. Expone
+  `exito(msg)`, `error(msg)` y `confirmarBorrado(nombre)` que devuelve true/false. No se usa el modal
+  de Bootstrap para confirmar: dos mecanismos distintos para lo mismo confunden al usuario y al que
+  copia el patrón.
 
 ## 7. Anatomía de una pantalla CRUD (mismo orden siempre)
 
 1. Encabezado: título en plural, contador ("5 registros") y botón "+ Nuevo …".
 2. Filtros: solo Media (búsqueda por título o serial, género, tipo). Los módulos simples no llevan.
 3. Tabla.
-4. Estados: cargando (spinner centrado), vacío (mensaje + botón de crear), error (mensaje +
-   botón reintentar).
+4. Estados: cargando (spinner ámbar centrado y "Cargando …"), vacío (título, una frase y el botón
+   de crear) y error (mensaje + botón reintentar). Los tres viven en el mismo contenedor de la tabla
+   y se controlan con un estado (`cargando | error | vacio | datos`), no con un `if` repetido por
+   módulo. Están dibujados en el mockup para copiarlos tal cual.
 5. Formulario en modal, no en página aparte.
 
 Columnas por módulo:
@@ -154,8 +157,11 @@ Media no tiene estado: no se le pone columna de estado ni campo en el formulario
 - 500 o red caída → "No se pudo conectar con la API. Verifica que el backend esté corriendo en
   localhost:3000".
 - DELETE responde `{ mensaje }`; GET, POST y PUT devuelven el documento.
-- Borrar siempre pide confirmación, con el botón peligroso a la derecha ("Sí, eliminar") y cancelar
-  como opción por defecto.
+- Borrar siempre pide confirmación con SweetAlert2, con el nombre del registro en el título
+  ("¿Eliminar «Interestelar»?"), texto "Esta acción no se puede deshacer", botón rojo "Sí, eliminar"
+  y "Cancelar" como opción por defecto. Después, un aviso de éxito que se cierra solo.
+- SweetAlert2 se configura con el tema: `background: '#171b22'`, `color: '#e6e9ef'`,
+  `confirmButtonColor: '#ef5a5a'`, `cancelButtonColor: '#262c38'`.
 
 ## 10. Accesibilidad mínima (no negociable)
 
