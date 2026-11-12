@@ -1,0 +1,634 @@
+/* ============================================================
+   PI2 Cine — tokens y clases compartidas del frontend.
+   Este archivo es propiedad de la base común: no se edita por módulo.
+   Todo color, radio y tamaño sale de aquí. Ningún componente escribe
+   un hex ni un px suelto si existe un token.
+   ============================================================ */
+
+:root {
+  --fondo: #0f1115;
+  --superficie: #171b22;
+  --superficie-2: #1d222b;
+  --borde: #262c38;
+  --borde-fuerte: #3a4557;
+  --texto: #e6e9ef;
+  --texto-suave: #98a2b3;
+  --texto-ayuda: #8b95a7;
+  --acento: #f5b942;
+  --acento-hover: #ffc95a;
+  --acento-tenue: rgba(245, 185, 66, 0.12);
+  --peligro: #ef5a5a;
+  --peligro-hover: #ff7373;
+  --peligro-tenue: rgba(239, 90, 90, 0.08);
+  --ok: #3ecf8e;
+  --fuente: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, Consolas, "Courier New", monospace;
+  --esp-1: 4px;
+  --esp-2: 8px;
+  --esp-3: 12px;
+  --esp-4: 16px;
+  --esp-5: 20px;
+  --esp-6: 24px;
+  --esp-8: 32px;
+}
+
+/* ---------- Base ---------- */
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  background: var(--fondo);
+  color: var(--texto);
+  font-family: var(--fuente);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 {
+  font-size: 22px;
+  font-weight: 650;
+  margin: 0;
+  letter-spacing: -0.2px;
+}
+
+a {
+  color: var(--acento);
+}
+
+/* Foco visible propio: el del navegador desaparece sobre fondo oscuro. */
+:focus-visible {
+  outline: 2px solid var(--acento);
+  outline-offset: 2px;
+}
+
+/* ---------- Estructura ---------- */
+
+.app {
+  display: flex;
+  min-height: 100vh;
+}
+
+.lateral {
+  width: 232px;
+  flex: 0 0 232px;
+  background: var(--superficie);
+  border-right: 1px solid var(--borde);
+  padding: var(--esp-5) 14px;
+  display: flex;
+  flex-direction: column;
+}
+
+.marca {
+  font-weight: 700;
+  padding: 0 10px 18px;
+  font-size: 17px;
+}
+
+.marca span {
+  color: var(--acento);
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  padding: 9px 12px;
+  border-radius: 9px;
+  color: var(--texto-suave);
+  text-decoration: none;
+  margin-bottom: 2px;
+  font-size: 14.5px;
+}
+
+.nav-item:hover {
+  background: var(--superficie-2);
+  color: var(--texto);
+}
+
+.nav-item.activo {
+  background: var(--acento-tenue);
+  color: var(--acento);
+  font-weight: 600;
+}
+
+.lateral .pie {
+  margin-top: auto;
+  font-size: 12.5px;
+  color: var(--texto-suave);
+  padding: 10px;
+  border-top: 1px solid var(--borde);
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+}
+
+.punto {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ok);
+  flex: 0 0 auto;
+}
+
+.punto.caido {
+  background: var(--peligro);
+}
+
+.punto.dudoso {
+  background: var(--texto-ayuda);
+}
+
+.principal {
+  flex: 1;
+  padding: 26px 30px var(--esp-8);
+  min-width: 0;
+}
+
+.sub {
+  color: var(--texto-suave);
+  font-size: 13.5px;
+  margin-top: 2px;
+}
+
+/* ---------- Botones ---------- */
+
+.btn-acento,
+.btn-fantasma,
+.btn-peligro {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 9px;
+  border: 1px solid transparent;
+  padding: 9px 15px;
+  font-size: 14px;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+.btn-acento {
+  background: var(--acento);
+  border-color: var(--acento);
+  color: #15181e;
+  font-weight: 600;
+}
+
+.btn-acento:hover:not(:disabled) {
+  background: var(--acento-hover);
+  border-color: var(--acento-hover);
+}
+
+.btn-fantasma {
+  background: transparent;
+  border-color: var(--borde);
+  color: var(--texto);
+  font-size: 13.5px;
+  padding: 8px 13px;
+}
+
+.btn-fantasma:hover:not(:disabled) {
+  border-color: var(--borde-fuerte);
+}
+
+.btn-peligro {
+  background: var(--peligro);
+  border-color: var(--peligro);
+  color: #1b0d0d;
+  font-weight: 600;
+}
+
+.btn-peligro:hover:not(:disabled) {
+  background: var(--peligro-hover);
+  border-color: var(--peligro-hover);
+}
+
+.btn-acento:disabled,
+.btn-fantasma:disabled,
+.btn-peligro:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ---------- Caja y filtros ---------- */
+
+.caja {
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+}
+
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 14px var(--esp-4);
+  border-bottom: 1px solid var(--borde);
+}
+
+.campo {
+  background: var(--fondo);
+  border: 1px solid var(--borde);
+  color: var(--texto);
+  border-radius: var(--esp-2);
+  font-size: 13.5px;
+  padding: var(--esp-2) var(--esp-3);
+  width: 280px;
+  max-width: 100%;
+}
+
+.campo::placeholder {
+  color: var(--texto-ayuda);
+}
+
+.campo:focus-visible {
+  outline: 2px solid var(--acento);
+  outline-offset: 1px;
+}
+
+.campo--corto {
+  width: 170px;
+}
+
+/* ---------- Tabla ---------- */
+
+.table {
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--texto);
+  --bs-table-border-color: var(--borde);
+  margin: 0;
+  font-size: 14px;
+}
+
+.table thead th {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--texto-suave);
+  font-weight: 600;
+  border-bottom: 1px solid var(--borde);
+  padding: var(--esp-3) var(--esp-4);
+  white-space: nowrap;
+}
+
+.table tbody td {
+  padding: 11px var(--esp-4);
+  vertical-align: middle;
+  border-color: var(--borde);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.table tbody tr:hover {
+  background: var(--superficie-2);
+}
+
+/* ---------- Celdas y chips ---------- */
+
+.portada {
+  width: 34px;
+  height: 48px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #0f1115;
+  background: linear-gradient(140deg, var(--acento), #b47b17);
+  overflow: hidden;
+  flex: 0 0 auto;
+}
+
+.portada img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.titulo-fila {
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.serial {
+  font-size: 12px;
+  color: var(--texto-suave);
+  font-family: var(--mono);
+}
+
+.genero {
+  font-size: 12.5px;
+  color: #cfd6e2;
+  background: var(--superficie-2);
+  border: 1px solid var(--borde);
+  padding: 3px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.tipo {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #9fb4ff;
+  background: rgba(99, 132, 255, 0.14);
+  padding: 3px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.tipo--serie {
+  color: #c3a6ff;
+  background: rgba(160, 120, 255, 0.14);
+}
+
+.anio {
+  font-variant-numeric: tabular-nums;
+  color: #cfd6e2;
+}
+
+.suave {
+  color: var(--texto-suave);
+}
+
+.mono {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: var(--texto-suave);
+}
+
+/* Estado: verde activo, gris inactivo, SIEMPRE con texto. */
+.estado-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: #cfd6e2;
+  background: var(--superficie-2);
+  border: 1px solid var(--borde);
+  padding: 3px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.estado-chip .punto {
+  width: 6px;
+  height: 6px;
+}
+
+.estado-chip--inactivo {
+  color: var(--texto-suave);
+}
+
+.estado-chip--inactivo .punto {
+  background: var(--texto-ayuda);
+}
+
+/* ---------- Acciones de fila ---------- */
+
+.acciones {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.icono {
+  background: var(--superficie-2);
+  border: 1px solid var(--borde);
+  border-radius: 7px;
+  padding: 5px 9px;
+  color: var(--texto-suave);
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.icono:hover {
+  color: var(--texto);
+  border-color: var(--borde-fuerte);
+}
+
+.icono.peligro:hover {
+  border-color: rgba(239, 90, 90, 0.55);
+  color: var(--peligro);
+  background: var(--peligro-tenue);
+}
+
+/* ---------- Modal y formulario ---------- */
+
+.modal-content {
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: 14px;
+  color: var(--texto);
+}
+
+.modal-header,
+.modal-footer {
+  border-color: var(--borde);
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: 650;
+}
+
+.grupo {
+  border: 0;
+  padding: 0;
+  margin: 0 0 18px;
+}
+
+.grupo legend {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: var(--texto-suave);
+  font-weight: 650;
+  border-bottom: 1px solid var(--borde);
+  padding-bottom: 6px;
+  margin-bottom: 10px;
+  width: 100%;
+  float: none;
+}
+
+.form-label {
+  font-size: 13px;
+  color: #c3cad6;
+  margin-bottom: var(--esp-1);
+  font-weight: 500;
+}
+
+.form-control,
+.form-select {
+  background: var(--fondo);
+  border: 1px solid var(--borde);
+  color: var(--texto);
+  font-size: 14px;
+  border-radius: var(--esp-2);
+}
+
+.form-control::placeholder {
+  color: var(--texto-ayuda);
+}
+
+.form-control:focus,
+.form-select:focus {
+  background: var(--fondo);
+  border-color: var(--acento);
+  color: var(--texto);
+  box-shadow: 0 0 0 3px rgba(245, 185, 66, 0.15);
+}
+
+.form-control.is-invalid,
+.form-select.is-invalid {
+  border-color: var(--peligro);
+}
+
+.ayuda {
+  font-size: 12px;
+  color: var(--texto-ayuda);
+  margin-top: var(--esp-1);
+}
+
+.requerido {
+  color: var(--acento);
+}
+
+.invalid-feedback {
+  font-size: 12px;
+}
+
+/* ---------- Estados de la tabla (cargando / vacío / error) ---------- */
+
+.estado-caja {
+  padding: 56px var(--esp-6);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.estado-titulo {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.estado-texto {
+  font-size: 13.5px;
+  color: var(--texto-suave);
+  margin: 0;
+  max-width: 46ch;
+}
+
+.spinner-acento {
+  width: 26px;
+  height: 26px;
+  color: var(--acento);
+}
+
+/* ---------- SweetAlert2 ---------- */
+
+/* Texto oscuro sobre el botón de confirmar: el blanco por defecto no se lee
+   sobre el ámbar del tema ni sobre el rojo de "Sí, eliminar". */
+.swal2-container .swal2-styled.swal-confirmar {
+  color: #15181e;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 767.98px) {
+  .app {
+    flex-direction: column;
+  }
+
+  .lateral {
+    width: auto;
+    flex: 0 0 auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--borde);
+    padding: var(--esp-2) var(--esp-3) 0;
+  }
+
+  .marca {
+    padding: 6px 4px 10px;
+  }
+
+  .lateral nav {
+    display: flex;
+    gap: var(--esp-1);
+    overflow-x: auto;
+    padding-bottom: var(--esp-2);
+  }
+
+  .nav-item {
+    margin-bottom: 0;
+    white-space: nowrap;
+    font-size: 13.5px;
+    padding: 7px 10px;
+  }
+
+  .lateral .pie {
+    display: none;
+  }
+
+  .principal {
+    padding: var(--esp-4);
+  }
+
+  /* Tabla -> tarjetas apiladas */
+  .table thead {
+    display: none;
+  }
+
+  .table,
+  .table tbody,
+  .table tr,
+  .table td {
+    display: block;
+    width: 100%;
+  }
+
+  .table tbody tr {
+    border-bottom: 1px solid var(--borde);
+    padding: var(--esp-3) var(--esp-4);
+  }
+
+  .table tbody tr:last-child {
+    border-bottom: 0;
+  }
+
+  .table tbody td {
+    border: 0;
+    padding: 3px 0;
+    display: flex;
+    gap: var(--esp-3);
+    align-items: center;
+  }
+
+  .table tbody td::before {
+    content: attr(data-label);
+    flex: 0 0 96px;
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--texto-suave);
+  }
+
+  .table tbody td[data-label=""]::before {
+    display: none;
+  }
+
+  .acciones {
+    justify-content: flex-start;
+    padding-top: var(--esp-2);
+  }
+}

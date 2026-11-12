@@ -16,7 +16,8 @@ no funciona y el error parece del frontend cuando es del backend. El backend se 
 - Axios para las peticiones HTTP.
 - React Router 6 para la navegación (una ruta por módulo).
 - SweetAlert2 para avisos y confirmaciones.
-- Bundler: pendiente de decidir con el tutor (Vite o create-react-app). No cambia nada de lo que sigue.
+- Bundler: Vite con `@vitejs/plugin-react` (decidido en nov 2026: CRA está abandonado y falla con Node 24).
+  La URL de la API se lee de `import.meta.env.VITE_API_URL` (`.env` local, `.env.example` en el repo).
 
 CSS propio solo en `src/styles/tema.css`: tokens y un puñado de clases compartidas.
 Prohibido `style={{...}}` salvo valores dinámicos (por ejemplo el ancho de una barra).
@@ -92,6 +93,7 @@ frontend/src/
     TiposPage.jsx
     MediaPage.jsx
   styles/tema.css
+  utils/formato.js      formatearFecha, iniciales, textoEstado (nada de fechas a mano por módulo)
   App.jsx             router y Layout
   main.jsx
 ```
@@ -103,11 +105,22 @@ y ningún módulo comparte página con otro.
 
 - `Layout` — marca, navegación de los 5 módulos, indicador de la API al pie.
 - `EncabezadoPagina { titulo, subtitulo, accion }` — título en plural, contador y botón primario.
-- `TablaListado { columnas, filas, cargando, error, vacio, onEditar, onEliminar }` — resuelve sola
-  los tres estados (cargando, vacío, error) para que ningún módulo los reinvente.
+- `TablaListado` — resuelve sola los estados (cargando, error, vacío, sin resultados) para que ningún
+  módulo los reinvente. Props: `{ caption, columnas, filas, total, filtros, cargando, error, onReintentar,
+  vacio, sinResultados, nombreRegistro, onEditar, onEliminar }`.
+  - `columnas`: `[{ clave, encabezado, render(fila) }]`; si el `<th>` va vacío, `encabezadoOculto` con el
+    texto para lector de pantalla.
+  - `total`: registros sin filtrar. Es lo que distingue "no hay nada" (estado vacío con botón de crear) de
+    "los filtros no dejan pasar nada" (aviso sin botón). Sin `total` se asume `filas.length`.
+  - `filtros`: nodo opcional que se dibuja sobre la tabla dentro de la misma caja. Solo Media lo usa.
+  - `vacio`: `{ titulo, texto, textoAccion, onAccion }`. `sinResultados`: `{ titulo, texto }`.
+  - `nombreRegistro(fila)`: nombre para los `aria-label` de Editar/Eliminar.
 - `BadgeEstado { estado }` — activo / inactivo.
-- `Portada { url, titulo }` — imagen si hay url; si no, recuadro con las iniciales del título.
-- `ModalFormulario { abierto, titulo, onCerrar, onGuardar, guardando, children }`.
+- `Portada { url, titulo }` — imagen si hay url; si no, recuadro con las iniciales del título
+  (una palabra usa sus tres primeras letras: INT; dos o más, la inicial de cada una: BB, DP).
+- `ModalFormulario { abierto, titulo, onCerrar, onGuardar, guardando, children }`. El `<form>` ES el
+  `.modal-content` (si se anida dentro, se rompe el flex de Bootstrap y el pie se sale de la pantalla a
+  1366x768) y el diálogo lleva `modal-dialog-scrollable` como red de seguridad.
 - `avisos.js` — **el único mecanismo de avisos y confirmaciones es SweetAlert2**. Expone
   `exito(msg)`, `error(msg)` y `confirmarBorrado(nombre)` que devuelve true/false. No se usa el modal
   de Bootstrap para confirmar: dos mecanismos distintos para lo mismo confunden al usuario y al que
@@ -160,8 +173,10 @@ Media no tiene estado: no se le pone columna de estado ni campo en el formulario
 - Borrar siempre pide confirmación con SweetAlert2, con el nombre del registro en el título
   ("¿Eliminar «Interestelar»?"), texto "Esta acción no se puede deshacer", botón rojo "Sí, eliminar"
   y "Cancelar" como opción por defecto. Después, un aviso de éxito que se cierra solo.
-- SweetAlert2 se configura con el tema: `background: '#171b22'`, `color: '#e6e9ef'`,
-  `confirmButtonColor: '#ef5a5a'`, `cancelButtonColor: '#262c38'`.
+- SweetAlert2 se configura con el tema: `background: '#171b22'`, `color: '#e6e9ef'`, `cancelButtonColor:
+  '#262c38'`. El botón de confirmar va en rojo `#ef5a5a` cuando borra y en ámbar `#f5b942` cuando solo
+  informa ("Entendido"). En los dos casos lleva la clase `swal-confirmar` de `tema.css`, porque el texto
+  blanco por defecto sobre ámbar o rojo no se lee (sobre ámbar da 1.9:1).
 
 ## 10. Accesibilidad mínima (no negociable)
 
@@ -196,7 +211,8 @@ Lo que la auditoría encontró roto en el mockup y quedó corregido; todo módul
 
 - Se graba el video a 1440x900 y debe verse bien a 1280 de ancho, sin scroll horizontal.
 - Por debajo de 768px la tabla pasa a tarjetas apiladas y la navegación a barra superior.
-- El modal se ve completo en pantallas de 1366x768 (que es la de muchos portátiles del grupo).
+- El modal se ve completo en pantallas de 1366x768 (que es la de muchos portátiles del grupo). Medido en
+  el navegador: 688px de alto con el formulario de Media, sin scroll interno.
 
 ## 13. Git y trabajo en grupo
 
@@ -224,3 +240,21 @@ Lo que la auditoría encontró roto en el mockup y quedó corregido; todo módul
 - Subida de archivos: la portada es una URL.
 - Paginación, ordenamiento y filtros en los módulos simples.
 - Pruebas automáticas y conmutador de tema claro/oscuro.
+
+## 16. Estado de la base (nov 2026)
+
+Ya está construida y verificada; nadie la reescribe, solo la usa:
+
+- `api/cliente.js` con `baseURL` desde `VITE_API_URL`, timeout de 15 s y normalización de errores a
+  `{ status, mensaje }`. `status: 0` = no hubo respuesta (backend apagado): ese caso lo mapea a
+  "No se pudo conectar con la API…". 409/404/400 usan el `{ error }` que manda el backend.
+- Los 5 archivos de `api/` con las cinco operaciones de su módulo.
+- `utils/formato.js`: `formatearFecha` (dd/mm/aaaa hh:mm), `iniciales` y `textoEstado`.
+- Los 7 componentes compartidos y `Layout` con el indicador de la API (revisa cada 30 s).
+- `App.jsx` con las 5 rutas; `/` redirige a `/media`.
+- `pages/MediaPage.jsx` completa, como plantilla de referencia: tabla con portada, título + serial, año,
+  género, tipo, director y productora traducidos desde las otras 4 listas ("(eliminado)" si falta la
+  referencia), filtros por texto/género/tipo, y el modal con los 4 selects (activos al crear; el actual se
+  incluye aunque esté inactivo al editar).
+- `pages/*Page.jsx` de los otros 4 módulos son avisos de "en construcción": cada integrante reemplaza el
+  suyo copiando la anatomía de Media.

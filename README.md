@@ -5,10 +5,13 @@ Proyecto Integrado 2 — IU Digital de Antioquia.
 
 ## Stack
 
-- Backend: Node.js + Express
+- Backend: Node.js + Express 4
 - Base de datos: MongoDB (MongoDB Atlas, tier gratuito M0)
-- ODM: Mongoose
-- Pruebas: Postman
+- ODM: Mongoose 8
+- Pruebas de la API: Postman
+- Frontend: React 19 + Vite (JavaScript, sin TypeScript)
+- Estilos: Bootstrap 5.3 (solo CSS) + `src/styles/tema.css` con los tokens del tema oscuro
+- HTTP: Axios · Navegación: React Router 6 · Avisos: SweetAlert2
 
 ## Estructura
 
@@ -23,8 +26,19 @@ pi2-cine/
 │   │   └── seed/seed.js   → datos iniciales (5 géneros, 2 tipos)
 │   ├── .env               → variables de entorno (NO se sube a Git)
 │   └── package.json
-├── frontend/             → (entrega posterior, aún no existe)
+├── frontend/             → panel de administración en React (entrega 2)
+│   ├── src/
+│   │   ├── api/           → cliente Axios + un archivo por módulo
+│   │   ├── components/    → Layout, TablaListado, ModalFormulario, avisos…
+│   │   ├── pages/         → una página por módulo
+│   │   ├── styles/tema.css → tokens y clases compartidas
+│   │   ├── utils/formato.js → fechas, iniciales, textos de estado
+│   │   ├── App.jsx        → rutas
+│   │   └── main.jsx
+│   ├── .env               → URL de la API (NO se sube a Git)
+│   └── package.json
 ├── RUTAS.md              → contrato de endpoints (congelado)
+├── DISENO_UI.md          → contrato visual y de código del frontend
 └── README.md
 ```
 
@@ -40,6 +54,27 @@ pi2-cine/
 3. Pega tu cadena de conexión en `backend/.env` (campo `MONGO_URI`)
 4. `npm run seed`  → carga los 5 géneros y 2 tipos (solo la primera vez)
 5. `npm run dev`   → servidor en http://localhost:3000
+
+## Frontend (entrega 2)
+
+El frontend consume la API anterior; sin el backend corriendo no muestra datos.
+
+1. `cd frontend`
+2. `npm install`
+3. Copia `.env.example` a `.env` (la URL de la API; por defecto `http://localhost:3000`)
+4. `npm run dev` → panel en http://localhost:5173
+
+Notas para el equipo:
+
+- **Bundler: Vite** (decidido; `create-react-app` está abandonado y falla con Node 24). Si siguen un tutorial
+  de CRA, cambian tres cosas y ya: el `index.html` está en la raíz de `frontend/` (no en `public/`), la
+  variable de entorno se lee como `import.meta.env.VITE_API_URL` (no `process.env.REACT_APP_…`) y el servidor
+  arranca con `npm run dev` (no `npm start`).
+- Antes de escribir una pantalla, leer `DISENO_UI.md`: es el contrato visual (tokens, componentes compartidos,
+  anatomía de una pantalla CRUD, mapeo de errores). No se inventa nada que no esté ahí.
+- `src/pages/MediaPage.jsx` es la pantalla de referencia ya terminada; las otras cuatro están en construcción.
+- Una rama por módulo (`feat/front-generos`, …) y un PR por módulo. No se toca sin avisar `api/cliente.js`,
+  `styles/tema.css`, `components/*` ni `App.jsx`: es la base común.
 
 ## Estado de los módulos (API implementada)
 
