@@ -30,15 +30,17 @@ pi2-cine/
 │   ├── src/
 │   │   ├── api/           → cliente Axios + un archivo por módulo
 │   │   ├── components/    → Layout, TablaListado, ModalFormulario, avisos…
-│   │   ├── pages/         → una página por módulo
+│   │   ├── pages/         → una página por módulo + PlantillaPage.ejemplo.jsx
 │   │   ├── styles/tema.css → tokens y clases compartidas
 │   │   ├── utils/formato.js → fechas, iniciales, textos de estado
 │   │   ├── App.jsx        → rutas
 │   │   └── main.jsx
+│   ├── scripts/humo.mjs   → prueba rápida de los 5 endpoints (npm run humo)
 │   ├── .env               → URL de la API (NO se sube a Git)
 │   └── package.json
 ├── RUTAS.md              → contrato de endpoints (congelado)
 ├── DISENO_UI.md          → contrato visual y de código del frontend
+├── GUIA_MODULO.md        → paso a paso para hacer tu pantalla
 └── README.md
 ```
 
@@ -70,9 +72,11 @@ Notas para el equipo:
   de CRA, cambian tres cosas y ya: el `index.html` está en la raíz de `frontend/` (no en `public/`), la
   variable de entorno se lee como `import.meta.env.VITE_API_URL` (no `process.env.REACT_APP_…`) y el servidor
   arranca con `npm run dev` (no `npm start`).
-- Antes de escribir una pantalla, leer `DISENO_UI.md`: es el contrato visual (tokens, componentes compartidos,
-  anatomía de una pantalla CRUD, mapeo de errores). No se inventa nada que no esté ahí.
-- `src/pages/MediaPage.jsx` es la pantalla de referencia ya terminada; las otras cuatro están en construcción.
+- Para hacer tu pantalla: **`GUIA_MODULO.md`** (paso a paso, 6 pasos) y `src/pages/PlantillaPage.ejemplo.jsx`
+  (molde CRUD completo y funcionando). `src/pages/MediaPage.jsx` es la referencia más completa.
+- Antes de tocar el frontend: `npm run humo` comprueba los 5 endpoints de la API con un ciclo
+  crear/actualizar/borrar y te dice cuál está roto. Si ahí falla tu módulo, el problema es del backend.
+- Las reglas de diseño están en `DISENO_UI.md`: no se inventa nada que no esté ahí.
 - Una rama por módulo (`feat/front-generos`, …) y un PR por módulo. No se toca sin avisar `api/cliente.js`,
   `styles/tema.css`, `components/*` ni `App.jsx`: es la base común.
 

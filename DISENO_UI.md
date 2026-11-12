@@ -80,6 +80,7 @@ frontend/src/
     media.js
   components/
     Layout.jsx
+    ErrorBoundary.jsx   límite de errores: una pantalla rota no deja la app en blanco
     EncabezadoPagina.jsx
     TablaListado.jsx
     BadgeEstado.jsx
@@ -92,6 +93,7 @@ frontend/src/
     ProductorasPage.jsx
     TiposPage.jsx
     MediaPage.jsx
+    PlantillaPage.ejemplo.jsx   molde CRUD completo, NO está en las rutas (ver GUIA_MODULO.md)
   styles/tema.css
   utils/formato.js      formatearFecha, iniciales, textoEstado (nada de fechas a mano por módulo)
   App.jsx             router y Layout
@@ -125,6 +127,9 @@ y ningún módulo comparte página con otro.
   `exito(msg)`, `error(msg)` y `confirmarBorrado(nombre)` que devuelve true/false. No se usa el modal
   de Bootstrap para confirmar: dos mecanismos distintos para lo mismo confunden al usuario y al que
   copia el patrón.
+- `ErrorBoundary` — envuelve las rutas en `App.jsx` con `key={pathname}`. Si una pantalla lanza un
+  error, se ve el mensaje y la navegación sigue viva; al cambiar de módulo se reinicia solo.
+- `Portada` cae a las iniciales si la imagen no carga (url rota o sin red), no deja un hueco vacío.
 
 ## 7. Anatomía de una pantalla CRUD (mismo orden siempre)
 
@@ -257,4 +262,11 @@ Ya está construida y verificada; nadie la reescribe, solo la usa:
   referencia), filtros por texto/género/tipo, y el modal con los 4 selects (activos al crear; el actual se
   incluye aunque esté inactivo al editar).
 - `pages/*Page.jsx` de los otros 4 módulos son avisos de "en construcción": cada integrante reemplaza el
-  suyo copiando la anatomía de Media.
+  suyo copiando `PlantillaPage.ejemplo.jsx` y siguiendo `GUIA_MODULO.md`.
+- `PlantillaPage.ejemplo.jsx` es una pantalla CRUD completa y funcionando (~250 líneas comentadas) que no
+  está conectada a ninguna ruta. Verificada en el navegador contra la API antes de publicarla: lista,
+  crear, editar (con el cambio a inactivo) y borrar con confirmación.
+- `scripts/humo.mjs` (`npm run humo`) recorre los 5 módulos con un ciclo crear/actualizar/borrar, incluido
+  el 409 de Media, y limpia lo que crea. Verificado: 22 pasos en verde contra la API real.
+- `ErrorBoundary` probado con una pantalla que lanza un error: sale el mensaje, la navegación sigue viva y
+  al cambiar de módulo se reinicia. `Portada` con url rota cae a las iniciales.

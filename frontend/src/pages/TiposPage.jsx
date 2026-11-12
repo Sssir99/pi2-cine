@@ -1,9 +1,9 @@
 import EncabezadoPagina from '../components/EncabezadoPagina'
 
 // PENDIENTE — módulo Tipos.
-// Copiar la anatomía de MediaPage.jsx (DISENO_UI.md §7) usando api/tipos.js.
+// Copia src/pages/PlantillaPage.ejemplo.jsx como TiposPage.jsx y sigue GUIA_MODULO.md.
 // Columnas: nombre, descripción, fecha de actualización. Tipo NO tiene estado:
-// ni columna ni campo en el formulario.
+// borra el select, la columna y el import de BadgeEstado.
 export default function TiposPage() {
   return (
     <>
@@ -11,7 +11,7 @@ export default function TiposPage() {
       <div className="caja estado-caja">
         <p className="estado-titulo">Esta pantalla todavía no está hecha</p>
         <p className="estado-texto">
-          Se construye copiando la anatomía de Media (DISENO_UI.md §7) sobre api/tipos.js.
+          Hazla copiando <code>PlantillaPage.ejemplo.jsx</code> y siguiendo GUIA_MODULO.md.
         </p>
       </div>
     </>
