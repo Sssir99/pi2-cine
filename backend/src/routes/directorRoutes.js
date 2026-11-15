@@ -9,5 +9,5 @@ router.get('/:id', validarId, directorController.obtener);
 router.post('/', directorController.crear);
 router.put('/:id', validarId, directorController.actualizar);
 router.delete('/:id', validarId, directorController.eliminar);
-	
+
 module.exports = router;

@@ -146,7 +146,7 @@ Columnas por módulo:
 
 - Géneros: nombre, descripción, estado, fecha de actualización, acciones.
 - Directores: nombres, estado, fecha de actualización, acciones.
-- Productoras: nombre, slogan, estado, fecha de actualización, acciones.
+- Productoras: nombre, slogan, descripción, estado, fecha de actualización, acciones.
 - Tipos: nombre, descripción, fecha de actualización, acciones.
 - Media: portada, título + serial, año, género, tipo, director, productora, acciones.
   (Director y productora van en la tabla: son FK obligatorias y sin ellas no se puede revisar el

@@ -53,7 +53,7 @@ Abre tu archivo y busca los comentarios `// >>>`. Son los únicos sitios donde h
 4. **Las columnas de la tabla**, en el orden que fija `DISENO_UI.md` §7:
    - Géneros: nombre, descripción, estado, fecha de actualización
    - Directores: nombres, estado, fecha de actualización
-   - Productoras: nombre, slogan, estado, fecha de actualización
+   - Productoras: nombre, slogan, descripción, estado, fecha de actualización
    - Tipos: nombre, descripción, fecha de actualización (sin estado)
 5. **Los textos**: el título en plural, el botón ("+ Nuevo género"), el mensaje del estado vacío y el
    `caption` de la tabla.
@@ -63,7 +63,9 @@ Abre tu archivo y busca los comentarios `// >>>`. Son los únicos sitios donde h
 - **Tipos** no tiene estado: borra el `<select>` de estado, la columna del estado y el `import` de
   `BadgeEstado`. Esa es la única diferencia rara entre módulos.
 - **Directores** usa `nombres` (en plural) y no lleva descripción ni slogan.
-- **Productoras** lleva además `slogan`, opcional: cópialo del campo "descripción".
+- **Productoras** lleva `slogan` y `descripcion` (las dos opcionales). El patrón es el mismo del campo
+  "descripción": cambia el `id`, el `htmlFor` y el nombre del campo en `FORMULARIO_VACIO`, en `abrirEditar`
+  y en `datos`.
 - Los campos obligatorios van con `required`, `aria-required="true"` y el asterisco
   `<span className="requerido" aria-hidden="true">*</span>`. El texto de ayuda va solo donde hay una
   regla real, enlazado con `aria-describedby`.

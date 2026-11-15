@@ -9,5 +9,5 @@ router.get('/:id', validarId, productoraController.obtener);
 router.post('/', productoraController.crear);
 router.put('/:id', validarId, productoraController.actualizar);
 router.delete('/:id', validarId, productoraController.eliminar);
-	
+
 module.exports = router;

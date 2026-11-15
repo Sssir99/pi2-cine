@@ -7,7 +7,8 @@
 //
 // Está escrita para el módulo Género (nombre + descripción + estado). Si tu módulo
 // no tiene estado (Tipo), borra la columna, el campo del formulario y el badge.
-// Si tiene un campo más (Productora: slogan), copia el patrón del campo "descripcion".
+// Si tiene campos de texto de más (Productora: slogan y descripción), copia el patrón
+// del campo "descripcion" una vez por campo.
 //
 // Lo que NO tienes que escribir: los estados de la tabla, el modal, la confirmación
 // de borrado, los avisos y el manejo de errores. Todo eso ya está en los componentes
