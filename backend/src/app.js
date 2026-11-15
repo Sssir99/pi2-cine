@@ -30,6 +30,13 @@ app.use('/api/directores', directorRoutes);
 app.use('/api/productoras', productoraRoutes);
 
 app.use('/api/tipos', tipoRoutes);
+
+// Ruta /api que no existe: responder JSON (no el HTML por defecto de Express), para que
+// el cliente y Postman reciban siempre el mismo formato: { error }.
+app.use('/api', (req, res) => {
+  res.status(404).json({ error: `La ruta ${req.method} ${req.originalUrl} no existe` });
+});
+
 // Manejador central de errores (SIEMPRE al final)
 app.use(errorHandler);
 
