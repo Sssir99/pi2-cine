@@ -8,6 +8,8 @@
     "build": "vite build",
     "lint": "oxlint",
     "humo": "node scripts/humo.mjs",
+    "demo": "node scripts/demo.mjs",
+    "demo:limpiar": "node scripts/demo.mjs --limpiar",
     "preview": "vite preview"
   },
   "dependencies": {

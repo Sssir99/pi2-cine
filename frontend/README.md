@@ -29,4 +29,7 @@ pantalla CRUD, mapeo de errores de la API y checklist de módulo terminado).
 - `npm run build` — compila a `dist/`.
 - `npm run lint` — oxlint.
 - `npm run humo` — prueba los 5 endpoints de la API con un ciclo crear/actualizar/borrar y limpia.
+- `npm run demo` — carga 3 títulos de ejemplo con sus directores, productoras, géneros y tipos, para
+  grabar el video o mostrar el panel con datos. Es idempotente: si ya están, no los duplica.
+- `npm run demo:limpiar` — borra solo lo que cargó `npm run demo` y deja la base como tras el seed.
 - `npm run preview` — sirve el build.
