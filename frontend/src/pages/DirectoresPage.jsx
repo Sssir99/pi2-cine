@@ -4,14 +4,13 @@ import TablaListado from '../components/TablaListado'
 import ModalFormulario from '../components/ModalFormulario'
 import BadgeEstado from '../components/BadgeEstado'
 import { confirmarBorrado, error as avisoError, exito } from '../components/avisos'
-// >>> 1. Las cinco funciones de TU módulo (revisa src/api/<modulo>.js).
 import { actualizarDirector, crearDirector, eliminarDirector, listarDirectores } from '../api/directores'
 import { formatearFecha } from '../utils/formato'
 
-// >>> 2. Los campos del formulario vacío, con los nombres del contrato (sin tildes).
-const FORMULARIO_VACIO = { nombres: '', fechaActualizacion: '', estado: 'activo' }
+// Campos del formulario con los nombres del contrato: Director solo tiene nombres y estado.
+const FORMULARIO_VACIO = { nombres: '', estado: 'activo' }
 
-export default function PlantillaPage() {
+export default function DirectoresPage() {
   const [registros, setRegistros] = useState([])
   const [cargando, setCargando] = useState(true)
   const [errorCarga, setErrorCarga] = useState(null)
@@ -50,7 +49,6 @@ export default function PlantillaPage() {
     setEditando(registro)
     setFormulario({
       nombres: registro.nombres || '',
-      fechaActualizacion: registro.fechaActualizacion || '',
       estado: registro.estado || 'activo',
     })
     setModalAbierto(true)
@@ -63,11 +61,9 @@ export default function PlantillaPage() {
   const guardar = async () => {
     setGuardando(true)
     try {
-      // >>> 3. Los datos que se mandan a la API. Recorta los textos y no mandes
-      // fechaCreacion ni fechaActualizacion: las pone el sistema.
+      // Solo los campos del contrato, recortados: las fechas las pone el sistema.
       const datos = {
         nombres: formulario.nombres.trim(),
-        fechaActualizacion: formulario.fechaActualizacion.trim(),
         estado: formulario.estado,
       }
 
@@ -102,6 +98,7 @@ export default function PlantillaPage() {
     }
   }
 
+  // Columnas de la tabla: nombres, estado y fecha de actualización.
   const columnas = useMemo(
     () => [
       { clave: 'nombres', encabezado: 'Nombres' },
@@ -125,7 +122,7 @@ export default function PlantillaPage() {
 
   return (
     <>
-      {/* >>> 5. Títulos y textos de tu módulo, en plural como el menú. */}
+      {/* Títulos y textos del módulo, en plural como el menú. */}
       <EncabezadoPagina
         titulo="Directores"
         subtitulo={`Directores del catálogo · ${contador}`}
@@ -171,7 +168,7 @@ export default function PlantillaPage() {
               <input
                 id="nombres"
                 className="form-control"
-                placeholder="drama"
+                placeholder="Christopher Nolan"
                 required
                 aria-required="true"
                 aria-describedby="ayuda-nombres"
@@ -179,7 +176,7 @@ export default function PlantillaPage() {
                 onChange={cambiarCampo('nombres')}
               />
               <div id="ayuda-nombres" className="ayuda">
-                Único en el catálogo.
+                No es único: dos directores pueden llamarse igual.
               </div>
             </div>
 
@@ -196,20 +193,6 @@ export default function PlantillaPage() {
                 <option value="activo">Activo</option>
                 <option value="inactivo">Inactivo</option>
               </select>
-            </div>
-
-            <div className="col-12">
-              <label className="form-label" htmlFor="slogan">
-                Slogan
-              </label>
-              <textarea
-                id="slogan"
-                className="form-control"
-                rows="2"
-                placeholder="Para qué sirve este director (opcional)"
-                value={formulario.slogan}
-                onChange={cambiarCampo('slogan')}
-              />
             </div>
           </div>
         </fieldset>

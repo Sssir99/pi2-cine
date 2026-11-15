@@ -4,14 +4,13 @@ import TablaListado from '../components/TablaListado'
 import ModalFormulario from '../components/ModalFormulario'
 import BadgeEstado from '../components/BadgeEstado'
 import { confirmarBorrado, error as avisoError, exito } from '../components/avisos'
-// >>> 1. Las cinco funciones de TU módulo (revisa src/api/<modulo>.js).
 import { actualizarProductora, crearProductora, eliminarProductora, listarProductoras } from '../api/productoras'
 import { formatearFecha } from '../utils/formato'
 
-// >>> 2. Los campos del formulario vacío, con los nombres del contrato (sin tildes).
-const FORMULARIO_VACIO = { nombre: '', slogan: '', fechaActualizacion: '', estado: 'activo' }
+// Campos del formulario con los nombres del contrato: nombre, slogan, descripción y estado.
+const FORMULARIO_VACIO = { nombre: '', slogan: '', descripcion: '', estado: 'activo' }
 
-export default function PlantillaPage() {
+export default function ProductorasPage() {
   const [registros, setRegistros] = useState([])
   const [cargando, setCargando] = useState(true)
   const [errorCarga, setErrorCarga] = useState(null)
@@ -51,7 +50,7 @@ export default function PlantillaPage() {
     setFormulario({
       nombre: registro.nombre || '',
       slogan: registro.slogan || '',
-      fechaActualizacion: registro.fechaActualizacion || '',
+      descripcion: registro.descripcion || '',
       estado: registro.estado || 'activo',
     })
     setModalAbierto(true)
@@ -64,12 +63,11 @@ export default function PlantillaPage() {
   const guardar = async () => {
     setGuardando(true)
     try {
-      // >>> 3. Los datos que se mandan a la API. Recorta los textos y no mandes
-      // fechaCreacion ni fechaActualizacion: las pone el sistema.
+      // Solo los campos del contrato, recortados: las fechas las pone el sistema.
       const datos = {
         nombre: formulario.nombre.trim(),
         slogan: formulario.slogan.trim(),
-        fechaActualizacion: formulario.fechaActualizacion.trim(),
+        descripcion: formulario.descripcion.trim(),
         estado: formulario.estado,
       }
 
@@ -104,8 +102,8 @@ export default function PlantillaPage() {
     }
   }
 
-  // >>> 4. Las columnas de tu tabla, en el orden del contrato (DISENO_UI.md §7).
-  // El "render" es lo que se pinta en la celda; si no lo pones, usa fila[clave].
+  // Columnas de la tabla, en el orden del contrato: nombre, slogan, descripción,
+  // estado y fecha de actualización.
   const columnas = useMemo(
     () => [
       { clave: 'nombre', encabezado: 'Nombre' },
@@ -113,6 +111,11 @@ export default function PlantillaPage() {
         clave: 'slogan',
         encabezado: 'Slogan',
         render: (registro) => registro.slogan || <span className="suave">—</span>,
+      },
+      {
+        clave: 'descripcion',
+        encabezado: 'Descripción',
+        render: (registro) => registro.descripcion || <span className="suave">—</span>,
       },
       {
         clave: 'estado',
@@ -134,7 +137,7 @@ export default function PlantillaPage() {
 
   return (
     <>
-      {/* >>> 5. Títulos y textos de tu módulo, en plural como el menú. */}
+      {/* Títulos y textos del módulo, en plural como el menú. */}
       <EncabezadoPagina
         titulo="Productoras"
         subtitulo={`Productoras del catálogo · ${contador}`}
@@ -180,7 +183,7 @@ export default function PlantillaPage() {
               <input
                 id="nombre"
                 className="form-control"
-                placeholder="drama"
+                placeholder="Warner Bros"
                 required
                 aria-required="true"
                 aria-describedby="ayuda-nombre"
@@ -215,9 +218,23 @@ export default function PlantillaPage() {
                 id="slogan"
                 className="form-control"
                 rows="2"
-                placeholder="Para qué sirve esta productora (opcional)"
+                placeholder="Frase corta de la productora (opcional)"
                 value={formulario.slogan}
                 onChange={cambiarCampo('slogan')}
+              />
+            </div>
+
+            <div className="col-12">
+              <label className="form-label" htmlFor="descripcion">
+                Descripción
+              </label>
+              <textarea
+                id="descripcion"
+                className="form-control"
+                rows="2"
+                placeholder="Para qué sirve esta productora (opcional)"
+                value={formulario.descripcion}
+                onChange={cambiarCampo('descripcion')}
               />
             </div>
           </div>
