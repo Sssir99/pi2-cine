@@ -5,7 +5,7 @@ import ModalFormulario from '../components/ModalFormulario'
 import BadgeEstado from '../components/BadgeEstado'
 import { confirmarBorrado, error as avisoError, exito } from '../components/avisos'
 // >>> 1. Las cinco funciones de TU módulo (revisa src/api/<modulo>.js).
-import { actualizarDirectores, crearDirectores, eliminarDirectores, listarDirectores } from '../api/directores'
+import { actualizarDirector, crearDirector, eliminarDirector, listarDirectores } from '../api/directores'
 import { formatearFecha } from '../utils/formato'
 
 // >>> 2. Los campos del formulario vacío, con los nombres del contrato (sin tildes).
@@ -72,9 +72,9 @@ export default function PlantillaPage() {
       }
 
       if (editando) {
-        await actualizarDirectores(editando._id, datos)
+        await actualizarDirector(editando._id, datos)
       } else {
-        await crearDirectores(datos)
+        await crearDirector(datos)
       }
 
       setModalAbierto(false)
@@ -93,7 +93,7 @@ export default function PlantillaPage() {
     const confirmado = await confirmarBorrado(registro.nombres)
     if (!confirmado) return
     try {
-      await eliminarDirectores(registro._id)
+      await eliminarDirector(registro._id)
       await cargar()
       await exito('Registro eliminado')
     } catch (fallo) {

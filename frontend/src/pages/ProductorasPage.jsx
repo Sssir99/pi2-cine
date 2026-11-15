@@ -5,11 +5,11 @@ import ModalFormulario from '../components/ModalFormulario'
 import BadgeEstado from '../components/BadgeEstado'
 import { confirmarBorrado, error as avisoError, exito } from '../components/avisos'
 // >>> 1. Las cinco funciones de TU módulo (revisa src/api/<modulo>.js).
-import { actualizarProductoras, crearProductoras, eliminarProductoras, listarProductoras } from '../api/productoras'
+import { actualizarProductora, crearProductora, eliminarProductora, listarProductoras } from '../api/productoras'
 import { formatearFecha } from '../utils/formato'
 
 // >>> 2. Los campos del formulario vacío, con los nombres del contrato (sin tildes).
-const FORMULARIO_VACIO = { nombres: '', slogan: '', fechaActualizacion: '', estado: 'activo' }
+const FORMULARIO_VACIO = { nombre: '', slogan: '', fechaActualizacion: '', estado: 'activo' }
 
 export default function PlantillaPage() {
   const [registros, setRegistros] = useState([])
@@ -49,7 +49,7 @@ export default function PlantillaPage() {
   const abrirEditar = (registro) => {
     setEditando(registro)
     setFormulario({
-      nombres: registro.nombres || '',
+      nombre: registro.nombre || '',
       slogan: registro.slogan || '',
       fechaActualizacion: registro.fechaActualizacion || '',
       estado: registro.estado || 'activo',
@@ -67,16 +67,16 @@ export default function PlantillaPage() {
       // >>> 3. Los datos que se mandan a la API. Recorta los textos y no mandes
       // fechaCreacion ni fechaActualizacion: las pone el sistema.
       const datos = {
-        nombres: formulario.nombres.trim(),
+        nombre: formulario.nombre.trim(),
         slogan: formulario.slogan.trim(),
         fechaActualizacion: formulario.fechaActualizacion.trim(),
         estado: formulario.estado,
       }
 
       if (editando) {
-        await actualizarProductoras(editando._id, datos)
+        await actualizarProductora(editando._id, datos)
       } else {
-        await crearProductoras(datos)
+        await crearProductora(datos)
       }
 
       setModalAbierto(false)
@@ -95,7 +95,7 @@ export default function PlantillaPage() {
     const confirmado = await confirmarBorrado(registro.nombre)
     if (!confirmado) return
     try {
-      await eliminarProductoras(registro._id)
+      await eliminarProductora(registro._id)
       await cargar()
       await exito('Registro eliminado')
     } catch (fallo) {
@@ -184,8 +184,8 @@ export default function PlantillaPage() {
                 required
                 aria-required="true"
                 aria-describedby="ayuda-nombre"
-                value={formulario.nombres}
-                onChange={cambiarCampo('nombres')}
+                value={formulario.nombre}
+                onChange={cambiarCampo('nombre')}
               />
               <div id="ayuda-nombre" className="ayuda">
                 Único en el catálogo.
