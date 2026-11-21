@@ -86,6 +86,21 @@ Notas para el equipo:
 - Una rama por módulo (`feat/front-generos`, …) y un PR por módulo. No se toca sin avisar `api/cliente.js`,
   `styles/tema.css`, `components/*` ni `App.jsx`: es la base común.
 
+## Despliegue
+
+En producción se publica **un solo servicio**: Express sirve la API bajo `/api` y el panel compilado en
+la raíz, así que todo vive en una URL, sin CORS y sin variables en el cliente. El paso a paso (Atlas,
+Render, variables, verificación y capturas para el documento) está en **`DEPLOY.md`**, y el servicio está
+descrito en `render.yaml`.
+
+Comprobación rápida del paquete de producción en local:
+
+```
+cd frontend && VITE_API_URL= npm run build
+cd ../backend && npm start          # http://localhost:3000
+curl http://localhost:3000/api/salud
+```
+
 ## Estado de los módulos (API implementada)
 
 Los 5 módulos están implementados con CRUD completo (GET, GET/:id, POST, PUT, DELETE) y registrados en `src/app.js`:

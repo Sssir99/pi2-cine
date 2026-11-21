@@ -1,14 +1,25 @@
 import axios from 'axios'
 
-// Base URL: en desarrollo http://localhost:3000; se cambia en frontend/.env sin tocar código.
-const baseURL = `${(import.meta.env.VITE_API_URL || 'http://localhost:3000').replace(/\/+$/, '')}/api`
+// Base URL de la API. Tres casos:
+//   - desarrollo (Vite en 5173): la API vive en otro puerto, http://localhost:3000;
+//   - despliegue de un solo servicio (Express sirve también el panel): misma origen, base relativa;
+//   - panel publicado aparte: se fija VITE_API_URL con la URL de la API.
+const configurada = import.meta.env.VITE_API_URL
+const base =
+  configurada === undefined
+    ? import.meta.env.DEV
+      ? 'http://localhost:3000'
+      : ''
+    : configurada.replace(/\/+$/, '')
+const baseURL = `${base}/api`
 
 const cliente = axios.create({ baseURL, timeout: 15000 })
 
 // Todo fallo llega a las páginas con la MISMA forma: { status, mensaje }.
 // status 0 = no hubo respuesta (backend apagado o red caída).
-const MENSAJE_SIN_API =
-  'No se pudo conectar con la API. Verifica que el backend esté corriendo en localhost:3000.'
+const MENSAJE_SIN_API = base
+  ? `No se pudo conectar con la API en ${base}. Verifica que el backend esté corriendo.`
+  : 'No se pudo conectar con el servidor. Recarga la página o inténtalo de nuevo.'
 
 function mensajeDe(status, datos) {
   if (status === 409) {

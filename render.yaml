@@ -1,0 +1,25 @@
+# Despliegue en Render (un solo servicio)
+#
+# Este archivo lo lee Render cuando se crea un "Blueprint" desde el repo: define el servicio,
+# el comando de compilación (instala backend y frontend y compila el panel) y el de arranque
+# (Express sirve la API y el panel compilado desde el mismo origen).
+#
+# La cadena de MongoDB no se escribe aquí: se pega en el panel de Render, marcada como secreto.
+
+services:
+  - type: web
+    name: pi2-cine
+    runtime: node
+    plan: free
+    region: oregon
+    branch: main
+    buildCommand: export VITE_API_URL="" && npm ci --prefix backend && npm ci --prefix frontend && npm run build --prefix frontend
+    startCommand: npm start --prefix backend
+    healthCheckPath: /api/salud
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "22"
+      - key: MONGO_URI
+        sync: false
