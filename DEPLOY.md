@@ -52,11 +52,15 @@ queda visible en pantalla, que es lo que pide el documento de la entrega.
 | Repository | `Sssir99/pi2-cine` |
 | Branch | `main` |
 | Runtime | Node |
-| Build Command | `export VITE_API_URL="" && npm ci --prefix backend && npm ci --prefix frontend && npm run build --prefix frontend` |
+| Build Command | `export VITE_API_URL="" && npm ci --prefix backend && npm ci --include=dev --prefix frontend && npm run build --prefix frontend` |
 | Start Command | `npm start --prefix backend` |
 | Instance Type | Free |
 | Health Check Path | `/api/salud` |
 | Environment variables | `NODE_ENV=production`, `NODE_VERSION=22`, `MONGO_URI=<cadena de Atlas>` |
+
+> **Ojo con `NODE_ENV=production`:** con esa variable puesta, `npm ci` no instala las
+> `devDependencies`, y Vite vive ahí. El build falla con `vite: not found`. Por eso el comando de
+> compilación instala el frontend con `--include=dev`; el backend sí puede quedarse con las de producción.
 
 ### Opción B — con el blueprint del repo
 
