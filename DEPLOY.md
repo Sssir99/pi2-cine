@@ -42,16 +42,10 @@ Abre http://localhost:3000 (no 5173): debe cargar el panel desde el propio Expre
 
 ## Crear el servicio en Render
 
-### Opción A — con el blueprint del repo (recomendada)
+### Opción A — a mano (recomendada para documentar)
 
-1. Entra en https://dashboard.render.com → **New** → **Blueprint**.
-2. Conecta GitHub y elige el repo `pi2-cine`. Render lee `render.yaml` y propone el servicio `pi2-cine`.
-3. Pega el valor de `MONGO_URI` cuando lo pida (es el único secreto).
-4. **Apply** y espera el build (unos 3–5 minutos la primera vez).
-
-### Opción B — a mano (si el blueprint falla)
-
-**New → Web Service** y rellena:
+**New → Web Service** y rellena el formulario. Son unos clics más que el blueprint, pero el paso a paso
+queda visible en pantalla, que es lo que pide el documento de la entrega.
 
 | Campo | Valor |
 |---|---|
@@ -63,6 +57,12 @@ Abre http://localhost:3000 (no 5173): debe cargar el panel desde el propio Expre
 | Instance Type | Free |
 | Health Check Path | `/api/salud` |
 | Environment variables | `NODE_ENV=production`, `NODE_VERSION=22`, `MONGO_URI=<cadena de Atlas>` |
+
+### Opción B — con el blueprint del repo
+
+**New → Blueprint**, conecta GitHub y elige el repo: Render lee `render.yaml`, propone el servicio
+`pi2-cine` con los mismos comandos y solo pide la cadena de Mongo. Es más rápido y el archivo queda como
+la configuración versionada del servicio; el build y el arranque son idénticos a los de la opción A.
 
 ## Verificar el despliegue
 
