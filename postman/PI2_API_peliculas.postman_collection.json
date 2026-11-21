@@ -125,7 +125,6 @@
                   "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));",
                   "const j = pm.response.json();",
                   "pm.collectionVariables.set(\"generoId\", j._id);",
-                  "const j = pm.response.json();",
                   "pm.collectionVariables.set(\"generoNombre\", j.nombre);"
                 ]
               }
@@ -639,7 +638,6 @@
                   "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));",
                   "const j = pm.response.json();",
                   "pm.collectionVariables.set(\"productoraId\", j._id);",
-                  "const j = pm.response.json();",
                   "pm.collectionVariables.set(\"productoraNombre\", j.nombre);"
                 ]
               }
@@ -897,7 +895,6 @@
                   "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));",
                   "const j = pm.response.json();",
                   "pm.collectionVariables.set(\"tipoId\", j._id);",
-                  "const j = pm.response.json();",
                   "pm.collectionVariables.set(\"tipoNombre\", j.nombre);"
                 ]
               }
@@ -1155,15 +1152,44 @@
                   "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));",
                   "const j = pm.response.json();",
                   "pm.collectionVariables.set(\"mediaId\", j._id);",
-                  "const j = pm.response.json();",
                   "pm.collectionVariables.set(\"mediaSerial\", j.serial);",
-                  "const j = pm.response.json();",
                   "pm.collectionVariables.set(\"mediaUrl\", j.url);"
                 ]
               }
             }
           ],
           "x-expected-status": 201
+        },
+        {
+          "name": "Eliminar género en uso (409)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/generos/{{generoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "generos",
+                "{{generoId}}"
+              ]
+            },
+            "description": "La película creada arriba usa este género, así que la API no debe dejarlo borrar: respondería 409 con el número de títulos que lo usan."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Explica que está en uso\", () => pm.expect(pm.response.json().error).to.include(\"No se puede eliminar\"));"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 409
         },
         {
           "name": "Crear con serial repetido (409)",
@@ -1484,6 +1510,51 @@
           "x-expected-status": 200
         },
         {
+          "name": "Actualizar media inexistente (404)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/media/000000000000000000000000",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "media",
+                "000000000000000000000000"
+              ]
+            },
+            "description": "Un PUT a un id que no existe responde 404 antes de validar las referencias del cuerpo (si no, diría que el género no existe, que es otro problema).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"serial\": \"{{mediaSerial}}\",\n  \"titulo\": \"Película fantasma\",\n  \"url\": \"{{mediaUrl}}\",\n  \"anioEstreno\": 2020,\n  \"genero\": \"{{generoId}}\",\n  \"director\": \"{{directorId}}\",\n  \"productora\": \"{{productoraId}}\",\n  \"tipo\": \"{{tipoId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 404\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"El cuerpo es JSON con error\", () => pm.expect(pm.response.json().error).to.be.a(\"string\"));"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 404
+        },
+        {
           "name": "Media inexistente (404)",
           "request": {
             "method": "GET",
@@ -1714,6 +1785,36 @@
               ]
             },
             "description": "Después del DELETE debe responder 404."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 404\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "x-expected-status": 404
+        },
+        {
+          "name": "Eliminar un id inexistente (404)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/media/000000000000000000000000",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "media",
+                "000000000000000000000000"
+              ]
+            },
+            "description": "Borrar algo que ya no está responde 404, no 200: el panel lo usa para recargar la lista."
           },
           "event": [
             {

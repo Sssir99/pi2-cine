@@ -8,9 +8,9 @@ Proyecto Integrado 2 — IU Digital de Antioquia.
 - Backend: Node.js + Express 4
 - Base de datos: MongoDB (MongoDB Atlas, tier gratuito M0)
 - ODM: Mongoose 8
-- Pruebas de la API: Postman
+- Pruebas de la API: colección de Postman (49 peticiones) y `npm run humo`
 - Frontend: React 19 + Vite (JavaScript, sin TypeScript)
-- Estilos: Bootstrap 5.3 (solo CSS) + `src/styles/tema.css` con los tokens del tema oscuro
+- Estilos: Bootstrap 5.3 (CSS y el JS del modal) + `src/styles/tema.css` con los tokens de los dos temas
 - HTTP: Axios · Navegación: React Router 6 · Avisos: SweetAlert2
 
 ## Estructura
@@ -22,6 +22,8 @@ pi2-cine/
 │   │   ├── server.js      → arranca el servidor
 │   │   ├── app.js         → configura Express
 │   │   ├── config/db.js   → conexión a MongoDB Atlas
+│   │   ├── config/dns.js  → DNS de Node (Atlas falla con el de Windows)
+│   │   ├── middleware/    → validarId, exigirCampos, errorHandler
 │   │   ├── models/        → los 5 modelos (Genero, Director, Productora, Tipo, Media)
 │   │   └── seed/seed.js   → datos iniciales (5 géneros, 2 tipos)
 │   ├── .env               → variables de entorno (NO se sube a Git)
@@ -30,17 +32,19 @@ pi2-cine/
 │   ├── src/
 │   │   ├── api/           → cliente Axios + un archivo por módulo
 │   │   ├── components/    → Layout, TablaListado, ModalFormulario, avisos…
-│   │   ├── pages/         → una página por módulo + PlantillaPage.ejemplo.jsx
-│   │   ├── styles/tema.css → tokens y clases compartidas
-│   │   ├── utils/formato.js → fechas, iniciales, textos de estado
+│   │   ├── pages/         → Resumen + una página por módulo (y el molde histórico de la plantilla)
+│   │   ├── styles/tema.css → tokens de los dos temas y clases compartidas
+│   │   ├── utils/         → formato.js (fechas, iniciales) y tabla.js (filtrar, ordenar)
 │   │   ├── App.jsx        → rutas
-│   │   └── main.jsx
+│   │   └── main.jsx       → aplica el tema guardado antes de pintar
 │   ├── scripts/humo.mjs   → prueba rápida de los 5 endpoints (npm run humo)
+│   ├── scripts/demo.mjs   → datos de ejemplo para grabar (npm run demo / demo:limpiar)
 │   ├── .env               → URL de la API (NO se sube a Git)
 │   └── package.json
+├── postman/              → colección de la API (49 peticiones)
 ├── RUTAS.md              → contrato de endpoints (congelado)
 ├── DISENO_UI.md          → contrato visual y de código del frontend
-├── GUIA_MODULO.md        → paso a paso para hacer tu pantalla
+├── GUIA_MODULO.md        → cómo tocar una pantalla sin romper el molde
 └── README.md
 ```
 
@@ -54,10 +58,10 @@ pi2-cine/
 1. `cd backend`
 2. `npm install`
 3. Pega tu cadena de conexión en `backend/.env` (campo `MONGO_URI`)
-4. `npm run seed`  → carga los 5 géneros y 2 tipos (solo la primera vez)
+4. `npm run seed`  → carga los 5 géneros y 2 tipos (idempotente: se puede repetir sin duplicar)
 5. `npm run dev`   → servidor en http://localhost:3000
 
-## Frontend (entrega 2)
+## Frontend
 
 El frontend consume la API anterior; sin el backend corriendo no muestra datos.
 
@@ -72,8 +76,10 @@ Notas para el equipo:
   de CRA, cambian tres cosas y ya: el `index.html` está en la raíz de `frontend/` (no en `public/`), la
   variable de entorno se lee como `import.meta.env.VITE_API_URL` (no `process.env.REACT_APP_…`) y el servidor
   arranca con `npm run dev` (no `npm start`).
-- Para hacer tu pantalla: **`GUIA_MODULO.md`** (paso a paso, 6 pasos) y `src/pages/PlantillaPage.ejemplo.jsx`
-  (molde CRUD completo y funcionando). `src/pages/MediaPage.jsx` es la referencia más completa.
+- Para cambiar una pantalla: **`GUIA_MODULO.md`**. `src/pages/MediaPage.jsx` es la referencia más completa;
+  `PlantillaPage.ejemplo.jsx` es un molde histórico que ya no incluye filtros, orden ni aviso de cambios.
+- `npm test` corre las pruebas de Vitest (helpers y estados de la tabla).
+- `npm run demo` carga 5 títulos de ejemplo con sus relaciones y `npm run demo:limpiar` los borra.
 - Antes de tocar el frontend: `npm run humo` comprueba los 5 endpoints de la API con un ciclo
   crear/actualizar/borrar y te dice cuál está roto. Si ahí falla tu módulo, el problema es del backend.
 - Las reglas de diseño están en `DISENO_UI.md`: no se inventa nada que no esté ahí.
@@ -95,6 +101,8 @@ Los 5 módulos están implementados con CRUD completo (GET, GET/:id, POST, PUT, 
 Middlewares compartidos (`src/middleware/`):
 
 - `validarId.js` → responde 400 si el `:id` no tiene formato de ObjectId (se usa en todas las rutas con `:id`).
+- `exigirCampos.js` → responde 400 si un PUT no trae el campo identificador (nombre/nombres): `findByIdAndUpdate`
+  no valida los campos obligatorios que no vienen en el cuerpo.
 - `errorHandler.js` → manejador central: 409 si se repite un valor único, 400 si falla una validación, 404 si el registro no existe y 500 ante cualquier otro error.
 
 CORS (`cors` en `src/app.js`): la API acepta peticiones desde cualquier origen en desarrollo, porque el

@@ -47,13 +47,12 @@ export default function TablaListado({
   const claseColumna = (columna) => (columna.alineacion === 'derecha' ? 'text-end' : undefined)
 
   if (cargando) {
-    // Esqueleto con la forma de la tabla: se ve que va a aparecer una tabla y no un
-    // hueco, y el contenido no salta cuando llegan los datos.
     return (
-      <div className="caja" aria-busy="true">
-        <span className="visually-hidden" role="status">
-          Cargando…
-        </span>
+      <div className="caja" aria-busy="true" role="status">
+        <span className="visually-hidden">Cargando…</span>
+        {/* Los filtros siguen ahí mientras carga: si desaparecen, la página da un salto
+            y el usuario pierde lo que tenía escrito. */}
+        {filtros}
         {Array.from({ length: FILAS_ESQUELETO }, (_, fila) => (
           <div className="esqueleto-fila" key={fila}>
             {columnas.map((columna, indice) => (

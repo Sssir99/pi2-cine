@@ -12,7 +12,8 @@ no funciona y el error parece del frontend cuando es del backend. El backend se 
 ## 1. Stack
 
 - React con JavaScript (sin TypeScript).
-- Bootstrap 5.3 solo CSS, importado una vez en main. Sin react-bootstrap.
+- Bootstrap 5.3: el CSS se importa una vez en `main.jsx`; del JS solo se usa el del modal, que importa
+  `ModalFormulario.jsx` (`bootstrap/js/dist/modal`). Sin react-bootstrap.
 - Axios para las peticiones HTTP.
 - React Router 6 para la navegación (una ruta por módulo).
 - SweetAlert2 para avisos y confirmaciones.
@@ -30,7 +31,7 @@ Prohibido `style={{...}}` salvo valores dinámicos (por ejemplo el ancho de una 
 - Título de página 22–26px, peso 650.
 - Título de modal 17–18px, peso 650.
 - Etiqueta de formulario 12.5–13px, color tenue.
-- Tabla 14px; encabezado de tabla 11.5px, mayúsculas, espaciado .6px.
+- Tabla 14px; encabezado de tabla 12px, mayúsculas, espaciado .6px.
 - Texto de ayuda y pie 12px. Nada por debajo de 12px: los 11.5px los marcó el detector
   como tiny-text.
 - Seriales, ids y números: `ui-monospace, Consolas, monospace`.
@@ -38,7 +39,8 @@ Prohibido `style={{...}}` salvo valores dinámicos (por ejemplo el ancho de una 
 ## 3. Colores
 
 Tema A (oscuro) por defecto y tema B (claro) conmutable. Todos los colores viven como variables en
-`tema.css`; ningún componente escribe un hex directo. El tema se cambia con `data-tema="claro"` en
+`tema.css`; ningún componente escribe un hex suelto (los únicos son los valores por defecto que usa
+`avisos.js` si un token no existe). El tema se cambia con `data-tema="claro"` en
 `<html>` (y `data-bs-theme="light"` para los componentes de Bootstrap), se guarda en `localStorage` y
 se aplica antes de pintar desde un script en `index.html`.
 
@@ -92,16 +94,19 @@ frontend/src/
     Filtros.jsx       barra de filtros: Buscador y Selector
     avisos.js         envoltorio de SweetAlert2 (toast de éxito, error, confirmar borrado)
   pages/
+    ResumenPage.jsx     pantalla de entrada: cifras, últimos títulos y reparto por género
     GenerosPage.jsx
     DirectoresPage.jsx
     ProductorasPage.jsx
     TiposPage.jsx
     MediaPage.jsx
-    PlantillaPage.ejemplo.jsx   molde CRUD completo, NO está en las rutas (ver GUIA_MODULO.md)
+    PlantillaPage.ejemplo.jsx   molde histórico, NO está en las rutas ni incluye lo último (ver GUIA_MODULO.md)
   styles/tema.css
   utils/formato.js      formatearFecha, iniciales, textoEstado (nada de fechas a mano por módulo)
+  utils/tabla.js        filtrarPorTexto, ordenarFilas
+  test/configuracion.js setup de Vitest (jest-dom + cleanup)
   App.jsx             router y Layout
-  main.jsx
+  main.jsx            aplica el tema guardado antes de pintar
 ```
 
 Nombres: componentes en PascalCase; archivos de `api/` en plural y minúscula; una página por módulo
@@ -126,7 +131,8 @@ y ningún módulo comparte página con otro.
     `aria-label` con el nombre del registro; no llevan texto visible.
   - `total`: registros sin filtrar. Es lo que distingue "no hay nada" (estado vacío con botón de crear) de
     "los filtros no dejan pasar nada" (aviso sin botón). Sin `total` se asume `filas.length`.
-  - `filtros`: nodo opcional que se dibuja sobre la tabla dentro de la misma caja. Solo Media lo usa.
+  - `filtros`: nodo opcional que se dibuja sobre la tabla dentro de la misma caja, también mientras carga.
+    Lo usan las cinco pantallas.
   - `vacio`: `{ titulo, texto, textoAccion, onAccion }`. `sinResultados`: `{ titulo, texto }`.
   - `nombreRegistro(fila)`: nombre para los `aria-label` de Editar/Eliminar.
 - `BadgeEstado { estado }` — activo / inactivo.
@@ -155,7 +161,7 @@ y ningún módulo comparte página con otro.
    activo/inactivo. Media filtra por texto, género y tipo. Se montan con `Filtros`, `Buscador` y
    `Selector` de `components/Filtros.jsx`, nunca a mano.
 3. Tabla.
-4. Estados: cargando (spinner ámbar centrado y "Cargando …"), vacío (título, una frase y el botón
+4. Estados: cargando (esqueleto con la forma de la tabla y los filtros a la vista), vacío (título, una frase y el botón
    de crear) y error (mensaje + botón reintentar). Los tres viven en el mismo contenedor de la tabla
    y se controlan con un estado (`cargando | error | vacio | datos`), no con un `if` repetido por
    módulo. Están dibujados en el mockup para copiarlos tal cual.
@@ -238,7 +244,7 @@ Lo que la auditoría encontró roto en el mockup y quedó corregido; todo módul
 - Botones con verbo: Guardar, Eliminar, Cancelar, Reintentar.
 - Fechas en formato dd/mm/aaaa hh:mm, desde `fechaCreacion` y `fechaActualizacion`.
 - Nunca mostrar ObjectId crudos: se traducen con las listas. Si la referencia ya no existe,
-  mostrar "(eliminado)".
+  mostrar "(eliminado)". En el Resumen, donde no hay celda, se dice "Sin género" o "Sin tipo".
 - Estado vacío con frase completa: "Todavía no hay géneros registrados."
 
 ## 12. Responsive
@@ -265,7 +271,7 @@ Lo que la auditoría encontró roto en el mockup y quedó corregido; todo módul
 2. Crear funciona y el registro aparece sin recargar la página.
 3. Editar funciona y se ven los cambios.
 4. Eliminar pide confirmación y el registro desaparece.
-5. Se ven los tres estados: cargando, vacío y error.
+5. Se ven los cuatro estados: cargando, vacío, error y "sin resultados" con los filtros puestos.
 6. Los errores muestran el mensaje correcto (probar un duplicado y un campo vacío).
 7. Textos en español, sin colores fuera del tema y sin `console.log` sueltos.
 
@@ -307,6 +313,6 @@ Ya está construida y verificada; nadie la reescribe, solo la usa:
   está conectada a ninguna ruta. Verificada en el navegador contra la API antes de publicarla: lista,
   crear, editar (con el cambio a inactivo) y borrar con confirmación.
 - `scripts/humo.mjs` (`npm run humo`) recorre los 5 módulos con un ciclo crear/actualizar/borrar, incluido
-  el 409 de Media, y limpia lo que crea. Verificado: 22 pasos en verde contra la API real.
+  el 409 de Media y limpia lo que crea. Verificado: 21 pasos en verde contra la API real.
 - `ErrorBoundary` probado con una pantalla que lanza un error: sale el mensaje, la navegación sigue viva y
   al cambiar de módulo se reinicia. `Portada` con url rota cae a las iniciales.

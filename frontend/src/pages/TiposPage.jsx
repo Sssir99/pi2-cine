@@ -88,6 +88,9 @@ export default function TiposPage() {
       // 400/404/409/red ya vienen con su texto desde cliente.js.
       // El modal sigue abierto para que el usuario corrija sin perder lo escrito.
       avisoError(fallo.mensaje)
+      // Un 404 aquí significa que el registro ya no existe: se recarga la lista en vez de
+      // dejar al usuario reintentando contra una fila fantasma.
+      if (fallo.status === 404) cargar()
     } finally {
       setGuardando(false)
     }
@@ -159,7 +162,10 @@ export default function TiposPage() {
     </Filtros>
   )
 
-  const contador = `${registros.length} registro${registros.length === 1 ? '' : 's'}`
+  const hayFiltros = Boolean(filtroTexto.trim())
+  const contador = `${filas.length} registro${filas.length === 1 ? '' : 's'}${
+    hayFiltros ? ` de ${registros.length}` : ''
+  }`
 
   return (
     <>

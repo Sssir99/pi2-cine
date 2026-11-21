@@ -79,6 +79,12 @@
   --esqueleto: #e9ecf1;
 }
 
+/* La X de Bootstrap viene con el filtro de tema oscuro (blanca). En el tema claro hay que
+   quitarlo, si no queda una X blanca sobre el modal blanco. */
+[data-tema='claro'] .btn-close-white {
+  filter: none;
+}
+
 /* El velo del cajón en móvil aclara un poco menos sobre fondo blanco. */
 [data-tema='claro'] .velo {
   background: rgba(20, 24, 33, 0.35);
@@ -276,6 +282,7 @@ a {
   font-size: 14px;
   line-height: 1.2;
   cursor: pointer;
+  text-decoration: none;
 }
 
 .btn-acento {
@@ -619,11 +626,25 @@ a {
 
 .form-control,
 .form-select {
-  background: var(--fondo);
+  /* background-color y no background: el atajo borraba la flecha (background-image) que
+     Bootstrap pinta en los <select>, y se quedaban sin señal de que se despliegan. */
+  background-color: var(--fondo);
   border: 1px solid var(--borde);
   color: var(--texto);
   font-size: 14px;
   border-radius: var(--esp-2);
+}
+
+.form-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%2398a2b3' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round' d='M4.5 6.5 8 10l3.5-3.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 14px;
+  padding-right: 32px;
+}
+
+[data-tema='claro'] .form-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%235f6673' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round' d='M4.5 6.5 8 10l3.5-3.5'/%3E%3C/svg%3E");
 }
 
 .form-control::placeholder {
@@ -632,7 +653,7 @@ a {
 
 .form-control:focus,
 .form-select:focus {
-  background: var(--fondo);
+  background-color: var(--fondo);
   border-color: var(--acento);
   color: var(--texto);
   box-shadow: 0 0 0 3px var(--anillo-foco);
@@ -989,12 +1010,16 @@ a {
     z-index: 50;
     padding-top: var(--esp-5);
     transform: translateX(-100%);
-    transition: transform 0.18s ease;
+    transition: transform 0.18s ease, visibility 0.18s;
     overflow-y: auto;
+    /* Cerrado también sale del tabulador y del lector de pantalla: translateX solo lo
+       esconde a la vista, y con el teclado se llegaba a enlaces fuera de pantalla. */
+    visibility: hidden;
   }
 
   .lateral.abierto {
     transform: none;
+    visibility: visible;
     box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
   }
 
@@ -1043,7 +1068,7 @@ a {
   .table tbody td::before {
     content: attr(data-label);
     flex: 0 0 96px;
-    font-size: 11.5px;
+    font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     color: var(--texto-suave);

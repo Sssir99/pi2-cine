@@ -11,7 +11,9 @@ const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 
-app.use(express.json());
+// Límite explícito del cuerpo: por defecto son 100 kB y no hay razón para subirlo; dejarlo
+// escrito evita sorpresas si alguien cambia la configuración de Express.
+app.use(express.json({ limit: '100kb' }));
 
 // El contrato dice que fechaCreacion y fechaActualizacion las pone el sistema y NO se aceptan
 // en el body, y el _id sale siempre de la URL. Se limpian aquí una sola vez, para que ningún

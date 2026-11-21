@@ -4,7 +4,7 @@ import TablaListado from '../components/TablaListado'
 import ModalFormulario from '../components/ModalFormulario'
 import Portada from '../components/Portada'
 import Filtros, { Buscador, Selector } from '../components/Filtros'
-import { ordenarFilas } from '../utils/tabla'
+import { filtrarPorTexto, ordenarFilas } from '../utils/tabla'
 import { confirmarBorrado, error as avisoError, exito } from '../components/avisos'
 import { actualizarMedia, crearMedia, eliminarMedia, listarMedia } from '../api/media'
 import { listarGeneros } from '../api/generos'
@@ -107,15 +107,13 @@ export default function MediaPage() {
   const mapaTipos = useMemo(() => construirMapa(tipos), [tipos])
 
   const filas = useMemo(() => {
-    const texto = filtroTexto.trim().toLowerCase()
-    return media.filter((elemento) => {
-      const coincideTexto =
-        !texto ||
-        elemento.titulo.toLowerCase().includes(texto) ||
-        elemento.serial.toLowerCase().includes(texto)
+    // Mismo filtro que las otras cuatro pantallas (sin tildes ni mayúsculas): "ficcion"
+    // encuentra "ciencia ficción" en todas, no solo en algunas.
+    const porTexto = filtrarPorTexto(media, filtroTexto, ['titulo', 'serial'])
+    return porTexto.filter((elemento) => {
       const coincideGenero = !filtroGenero || elemento.genero === filtroGenero
       const coincideTipo = !filtroTipo || elemento.tipo === filtroTipo
-      return coincideTexto && coincideGenero && coincideTipo
+      return coincideGenero && coincideTipo
     })
   }, [media, filtroTexto, filtroGenero, filtroTipo])
 
@@ -178,6 +176,9 @@ export default function MediaPage() {
       await exito(editando ? 'Cambios guardados' : 'Título creado')
     } catch (fallo) {
       avisoError(fallo.mensaje)
+      // El registro ya no existe (lo borró otro): se recarga la lista en vez de dejar al
+      // usuario reintentando contra una fila fantasma.
+      if (fallo.status === 404) cargar()
     } finally {
       setGuardando(false)
     }
@@ -471,6 +472,10 @@ export default function MediaPage() {
               <input
                 id="anioEstreno"
                 className="form-control"
+                type="number"
+                min="1888"
+                max="2100"
+                step="1"
                 inputMode="numeric"
                 placeholder="2024"
                 aria-describedby="ayuda-anio"

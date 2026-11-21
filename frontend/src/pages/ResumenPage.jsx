@@ -83,8 +83,8 @@ export default function ResumenPage() {
 
   if (cargando) {
     return (
-      <div className="caja estado-caja">
-        <div className="spinner-border spinner-acento" role="status" aria-hidden="true" />
+      <div className="caja estado-caja" role="status">
+        <div className="spinner-border spinner-acento" aria-hidden="true" />
         <p className="estado-texto">Cargando…</p>
       </div>
     )

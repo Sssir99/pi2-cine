@@ -1,14 +1,11 @@
-// PLANTILLA DE PANTALLA CRUD — no está conectada a ninguna ruta.
+// PLANTILLA DE PANTALLA CRUD — molde histórico, no está conectada a ninguna ruta.
 //
-// Para tu módulo:
-//   1. Copia este archivo como src/pages/<Modulo>Page.jsx (ej. GenerosPage.jsx).
-//   2. Cambia los bloques marcados con ">>>".
-//   3. Guarda: la ruta ya existe en App.jsx, así que la pantalla aparece sola.
+// OJO: este archivo es de las primeras entregas y NO incluye lo último del molde real: buscador y
+// filtro por estado (`components/Filtros.jsx`), orden por columna (`ordenable` + `valor` + `utils/tabla.js`),
+// el aviso de cambios sin guardar (`sucio`) ni el estado "sin resultados". La referencia vigente es
+// src/pages/MediaPage.jsx y el resumen del patrón está en GUIA_MODULO.md.
 //
-// Está escrita para el módulo Género (nombre + descripción + estado). Si tu módulo
-// no tiene estado (Tipo), borra la columna, el campo del formulario y el badge.
-// Si tiene campos de texto de más (Productora: slogan y descripción), copia el patrón
-// del campo "descripcion" una vez por campo.
+// Se deja como material de lectura para ver el esqueleto de una pantalla CRUD; no se copia.
 //
 // Lo que NO tienes que escribir: los estados de la tabla, el modal, la confirmación
 // de borrado, los avisos y el manejo de errores. Todo eso ya está en los componentes

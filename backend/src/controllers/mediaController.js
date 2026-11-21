@@ -10,6 +10,13 @@ const Tipo = require('../models/Tipo');
 // Regla del caso: no se guarda una película con referencias inexistentes o inactivas.
 // Devuelve el mensaje de error, o null si todo está bien.
 const validarReferencias = async (datos) => {
+  // Un campo que no viene se responde como faltante, no como inexistente: el mensaje de
+  // "no existe o está inactivo" mandaba a revisar la relación cuando el problema era otro.
+  if (!datos.genero) return 'El género es obligatorio';
+  if (!datos.director) return 'El director es obligatorio';
+  if (!datos.productora) return 'La productora es obligatoria';
+  if (!datos.tipo) return 'El tipo es obligatorio';
+
   const genero = await Genero.findById(datos.genero);
   if (!genero || genero.estado !== 'activo') {
     return 'El género no existe o está inactivo';
@@ -37,7 +44,9 @@ const validarReferencias = async (datos) => {
 // GET /api/media  -> lista todas las películas y series, de la más reciente a la más antigua
 const listar = async (req, res, next) => {
   try {
-    const media = await Media.find().sort({ fechaCreacion: -1 });
+    // _id como segundo criterio: dos títulos creados en el mismo segundo salían en orden
+    // distinto en cada petición sin él.
+    const media = await Media.find().sort({ fechaCreacion: -1, _id: -1 });
     res.json(media);
   } catch (error) {
     next(error);

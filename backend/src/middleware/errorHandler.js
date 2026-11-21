@@ -25,6 +25,15 @@ const errorHandler = (err, req, res, next) => {
     return res.status(400).json({ error: `Valor '${err.value}' no tiene formato válido de ObjectId` });
   }
 
+  // JSON mal formado o cuerpo demasiado grande: Express ya los marca con un 4xx. Sin esto
+  // salían como 500 "error interno", que culpa al servidor de un fallo del cliente.
+  if (err.type === 'entity.parse.failed') {
+    return res.status(400).json({ error: 'El cuerpo de la petición no es JSON válido' });
+  }
+  if (err.type === 'entity.too.large') {
+    return res.status(413).json({ error: 'El cuerpo de la petición es demasiado grande' });
+  }
+
   // Error no controlado
   console.error(err);
   res.status(500).json({ error: 'Error interno del servidor' });
