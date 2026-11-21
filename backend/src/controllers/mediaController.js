@@ -34,10 +34,10 @@ const validarReferencias = async (datos) => {
   return null;
 };
 
-// GET /api/media  -> lista todas las películas y series
+// GET /api/media  -> lista todas las películas y series, de la más reciente a la más antigua
 const listar = async (req, res, next) => {
   try {
-    const media = await Media.find();
+    const media = await Media.find().sort({ fechaCreacion: -1 });
     res.json(media);
   } catch (error) {
     next(error);
@@ -77,6 +77,13 @@ const crear = async (req, res, next) => {
 // runValidators: true fuerza las validaciones del esquema en el update.
 const actualizar = async (req, res, next) => {
   try {
+    // Primero se comprueba que el título exista: si no existe es 404, aunque el cuerpo
+    // venga incompleto. Al revés, un PUT a un id inexistente respondía 400 "el género no
+    // existe", que manda a revisar el campo equivocado.
+    const existe = await Media.exists({ _id: req.params.id });
+    if (!existe) {
+      return res.status(404).json({ error: 'Media no encontrado' });
+    }
 
     const errorReferencias = await validarReferencias(req.body);
     if (errorReferencias) {

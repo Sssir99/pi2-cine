@@ -1,4 +1,5 @@
 const Tipo = require('../models/Tipo');
+const Media = require('../models/Media');
 
 const listar = async (req, res, next) => {
   try {
@@ -35,6 +36,14 @@ const actualizar = async (req, res, next) => {
 
 const eliminar = async (req, res, next) => {
   try {
+    // Integridad referencial: no se borra un tipo que ya clasifica algún título.
+    const enUso = await Media.countDocuments({ tipo: req.params.id });
+    if (enUso > 0) {
+      return res.status(409).json({
+        error: `No se puede eliminar el tipo: lo usan ${enUso} título${enUso === 1 ? '' : 's'} del catálogo`
+      });
+    }
+
     const tipo = await Tipo.findByIdAndDelete(req.params.id);
     if (!tipo) return res.status(404).json({ error: 'Tipo no encontrado' });
     res.json({ mensaje: 'Tipo eliminado correctamente' });

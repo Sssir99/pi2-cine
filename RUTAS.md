@@ -9,6 +9,7 @@ Todos los endpoints responden JSON.
 - CRUD completo en las 5 entidades (GET, POST, PUT, DELETE).
 - `fechaCreacion` y `fechaActualizacion` las pone el sistema: NO se envían ni se aceptan en el body del POST/PUT.
 - Media: al crear o actualizar, el backend debe validar que `genero`, `director` y `productora` existan y tengan estado `activo`, y que `tipo` exista.
+- Integridad: un género, director, productora o tipo que esté en uso por algún título NO se puede eliminar. El DELETE responde 409 e indica cuántos títulos lo usan, para no dejar Media con referencias muertas.
 
 ## Géneros — /api/generos
 
@@ -60,11 +61,13 @@ Todos los endpoints responden JSON.
 | PUT    | /api/media/:id  | { serial, titulo, url, genero, director, productora, tipo, sinopsis, imagenPortada, anioEstreno }     |
 | DELETE | /api/media/:id  | —                                                                                                     |
 
+`GET /api/media` devuelve los títulos ordenados por `fechaCreacion` descendente: el último creado aparece primero.
+
 ## Códigos de respuesta esperados
 
 - 200: OK (GET, PUT)
 - 201: creado (POST)
 - 400: body inválido, validación fallida o `:id` sin formato de ObjectId
 - 404: no existe (GET/:id, PUT/:id, DELETE/:id con id inexistente)
-- 409: conflicto — valor único ya existente (nombre, serial, url)
+- 409: conflicto — valor único ya existente (nombre, serial, url) o registro en uso que no se puede eliminar
 - 500: error del servidor

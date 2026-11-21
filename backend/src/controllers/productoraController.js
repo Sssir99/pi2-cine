@@ -1,4 +1,5 @@
 const Productora = require('../models/Productora');
+const Media = require('../models/Media');
 
 const listar = async (req, res, next) => {
     try {
@@ -48,6 +49,14 @@ const actualizar = async (req, res, next) => {
 
 const eliminar = async (req, res, next) => {
     try {
+        // Integridad referencial: no se borra una productora que ya produce algún título.
+        const enUso = await Media.countDocuments({ productora: req.params.id });
+        if (enUso > 0) {
+            return res.status(409).json({
+                error: `No se puede eliminar la productora: la usan ${enUso} título${enUso === 1 ? '' : 's'} del catálogo`
+            });
+        }
+
         const productora = await Productora.findByIdAndDelete(req.params.id);
         if (!productora) {
             return res.status(404).json({ error: 'Productora no encontrada' });

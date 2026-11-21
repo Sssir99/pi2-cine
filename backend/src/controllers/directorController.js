@@ -1,4 +1,5 @@
 const Director= require('../models/Director');
+const Media = require('../models/Media');
 
 const listar = async (req, res, next) => {
   try {
@@ -49,6 +50,14 @@ const actualizar = async (req, res, next) => {
 
 const eliminar = async (req, res, next) => {
   try {
+    // Integridad referencial: no se borra un director que ya dirige algún título.
+    const enUso = await Media.countDocuments({ director: req.params.id });
+    if (enUso > 0) {
+      return res.status(409).json({
+        error: `No se puede eliminar el director: lo usan ${enUso} título${enUso === 1 ? '' : 's'} del catálogo`
+      });
+    }
+
     const director = await Director.findByIdAndDelete(req.params.id);
     if (!director) {
       return res.status(404).json({ error: 'Director no encontrado' });
