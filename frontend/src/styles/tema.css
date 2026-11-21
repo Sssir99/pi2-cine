@@ -604,7 +604,6 @@ a {
 /* Aviso de éxito: franja compacta abajo a la derecha. */
 .swal2-container .swal-toast {
   border: 1px solid var(--borde);
-  border-left: 3px solid var(--ok);
   border-radius: 10px;
   padding: 10px 16px;
 }
