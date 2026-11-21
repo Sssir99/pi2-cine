@@ -125,6 +125,7 @@ export default function DirectoresPage() {
         // puede borrar y hace que la tabla no sea una sola columna de texto.
         clave: 'titulos',
         encabezado: 'Títulos',
+        alineacion: 'derecha',
         render: (registro) => {
           const cuantos = conteo.get(String(registro._id)) || 0
           return cuantos ? <span className="cifra">{cuantos}</span> : <span className="suave">—</span>
@@ -138,6 +139,7 @@ export default function DirectoresPage() {
       {
         clave: 'fechaActualizacion',
         encabezado: 'Actualizado',
+        alineacion: 'derecha',
         render: (registro) => (
           <span className="mono">{formatearFecha(registro.fechaActualizacion)}</span>
         ),

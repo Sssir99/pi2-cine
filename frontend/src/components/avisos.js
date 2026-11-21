@@ -16,12 +16,18 @@ const TEMA_BOTON_ACENTO = {
 }
 
 export function exito(mensaje) {
+  // Aviso de éxito como toast en la esquina: no interrumpe, no tapa la tabla y no hay que
+  // cerrarlo. Las confirmaciones y los errores siguen siendo modales porque exigen decisión.
   return Swal.fire({
     ...TEMA,
+    toast: true,
+    position: 'bottom-end',
     icon: 'success',
     title: mensaje,
-    timer: 1600,
     showConfirmButton: false,
+    timer: 2200,
+    timerProgressBar: true,
+    customClass: { popup: 'swal-toast' },
   })
 }
 

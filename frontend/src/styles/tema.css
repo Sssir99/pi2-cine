@@ -87,6 +87,25 @@ a {
   font-weight: 700;
   padding: 0 10px 18px;
   font-size: 17px;
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+}
+
+/* Cerrar el cajón desde dentro: en móvil el botón de la barra queda tapado. */
+.cerrar-menu {
+  display: none;
+  margin-left: auto;
+  background: none;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  align-items: center;
+  justify-content: center;
+  color: var(--texto-suave);
+  cursor: pointer;
 }
 
 .marca span {
@@ -96,6 +115,7 @@ a {
 .nav-item {
   display: flex;
   align-items: center;
+  gap: 10px;
   padding: 9px 12px;
   border-radius: 9px;
   color: var(--texto-suave);
@@ -113,6 +133,15 @@ a {
   background: var(--acento-tenue);
   color: var(--acento);
   font-weight: 600;
+}
+
+.nav-item.activo svg {
+  opacity: 1;
+}
+
+.nav-item svg {
+  flex: 0 0 auto;
+  opacity: 0.8;
 }
 
 .lateral .pie {
@@ -428,9 +457,13 @@ a {
   background: var(--superficie-2);
   border: 1px solid var(--borde);
   border-radius: 7px;
-  padding: 5px 9px;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   color: var(--texto-suave);
-  font-size: 12.5px;
   cursor: pointer;
 }
 
@@ -568,6 +601,20 @@ a {
   color: #15181e;
 }
 
+/* Aviso de éxito: franja compacta abajo a la derecha. */
+.swal2-container .swal-toast {
+  border: 1px solid var(--borde);
+  border-left: 3px solid var(--ok);
+  border-radius: 10px;
+  padding: 10px 16px;
+}
+
+.swal-toast .swal2-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--texto);
+}
+
 /* ---------- Pantalla de resumen ---------- */
 
 .rejilla-cifras {
@@ -693,6 +740,76 @@ a {
   border-radius: 999px;
 }
 
+/* ---------- Barra y cajón del menú (móvil) ---------- */
+
+/* En escritorio la barra no existe: el menú está siempre a la vista. */
+.barra-movil {
+  display: none;
+}
+
+.boton-menu {
+  background: none;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--texto);
+  cursor: pointer;
+}
+
+.boton-menu:hover {
+  border-color: var(--borde-fuerte);
+}
+
+.velo {
+  position: fixed;
+  inset: 0;
+  background: rgba(6, 8, 12, 0.6);
+  z-index: 40;
+}
+
+/* ---------- Esqueletos de carga ---------- */
+
+.esqueleto-fila {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-4);
+  padding: 15px var(--esp-4);
+  border-bottom: 1px solid var(--borde);
+}
+
+.esqueleto-fila:last-child {
+  border-bottom: 0;
+}
+
+.esqueleto-bloque {
+  height: 9px;
+  border-radius: 6px;
+  flex: 1 1 0;
+  background: linear-gradient(90deg, var(--superficie-2) 25%, #232a35 50%, var(--superficie-2) 75%);
+  background-size: 420px 100%;
+  animation: brillo 1.3s linear infinite;
+}
+
+@keyframes brillo {
+  from {
+    background-position: -210px 0;
+  }
+  to {
+    background-position: 210px 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .esqueleto-bloque {
+    animation: none;
+  }
+}
+
 /* ---------- Responsive ---------- */
 
 @media (max-width: 1100px) {
@@ -710,34 +827,49 @@ a {
     flex-direction: column;
   }
 
-  .lateral {
-    width: auto;
-    flex: 0 0 auto;
-    border-right: 0;
-    border-bottom: 1px solid var(--borde);
-    padding: var(--esp-2) var(--esp-3) 0;
-  }
-
-  .marca {
-    padding: 6px 4px 10px;
-  }
-
-  .lateral nav {
+  .barra-movil {
     display: flex;
-    gap: var(--esp-1);
-    overflow-x: auto;
-    padding-bottom: var(--esp-2);
+    align-items: center;
+    gap: var(--esp-3);
+    padding: 10px var(--esp-3);
+    background: var(--superficie);
+    border-bottom: 1px solid var(--borde);
+    position: sticky;
+    top: 0;
+    z-index: 30;
   }
 
-  .nav-item {
-    margin-bottom: 0;
-    white-space: nowrap;
-    font-size: 13.5px;
-    padding: 7px 10px;
+  .marca--movil {
+    padding: 0;
+    font-size: 15.5px;
+    flex: 1;
   }
 
-  .lateral .pie {
-    display: none;
+  .cerrar-menu {
+    display: inline-flex;
+  }
+
+  .barra-movil .punto {
+    margin-left: auto;
+  }
+
+  /* El menú deja de ser una tira con scroll horizontal: pasa a ser un cajón. */
+  .lateral {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 268px;
+    z-index: 50;
+    padding-top: var(--esp-5);
+    transform: translateX(-100%);
+    transition: transform 0.18s ease;
+    overflow-y: auto;
+  }
+
+  .lateral.abierto {
+    transform: none;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
   }
 
   .principal {
@@ -798,5 +930,10 @@ a {
   .acciones {
     justify-content: flex-start;
     padding-top: var(--esp-2);
+  }
+
+  /* En tarjeta no hay columnas: alinear a la derecha no aporta nada. */
+  .table tbody td.text-end {
+    text-align: left;
   }
 }

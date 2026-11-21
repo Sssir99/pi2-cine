@@ -1,10 +1,13 @@
+import { IconoBorrar, IconoEditar } from './Iconos'
+
 // Resuelve los tres estados de la tabla (cargando, error, vacío) y la tabla misma,
 // para que ningún módulo los reinvente. Los estados viven en el MISMO contenedor
 // que la tabla y se controlan con props, no con un `if` copiado por página.
 //
 // Props:
 //   caption        texto del <caption> para lectores de pantalla
-//   columnas       [{ clave, encabezado, render(fila) }]  (encabezadoOculto si el th va vacío)
+//   columnas       [{ clave, encabezado, render(fila), alineacion }]  (encabezadoOculto si el th va vacío;
+//                                                            alineacion: 'derecha' para cifras y fechas)
 //   filas          registros ya filtrados por la página
 //   total          registros sin filtrar (para distinguir "vacío" de "sin resultados")
 //   filtros        nodo opcional que se dibuja sobre la tabla (solo Media lo usa)
@@ -16,6 +19,8 @@
 //   nombreRegistro (fila) => string, para los aria-label de Editar/Eliminar
 //   onEditar       (fila) => void   (opcional)
 //   onEliminar     (fila) => void   (opcional)
+const FILAS_ESQUELETO = 4
+
 export default function TablaListado({
   caption,
   columnas = [],
@@ -34,11 +39,30 @@ export default function TablaListado({
   const totalRegistros = total ?? filas.length
   const conAcciones = Boolean(onEditar || onEliminar)
 
+  const claseColumna = (columna) => (columna.alineacion === 'derecha' ? 'text-end' : undefined)
+
   if (cargando) {
+    // Esqueleto con la forma de la tabla: se ve que va a aparecer una tabla y no un
+    // hueco, y el contenido no salta cuando llegan los datos.
     return (
-      <div className="caja estado-caja">
-        <div className="spinner-border spinner-acento" role="status" aria-hidden="true" />
-        <p className="estado-texto">Cargando…</p>
+      <div className="caja" aria-busy="true">
+        <span className="visually-hidden" role="status">
+          Cargando…
+        </span>
+        {Array.from({ length: FILAS_ESQUELETO }, (_, fila) => (
+          <div className="esqueleto-fila" key={fila}>
+            {columnas.map((columna, indice) => (
+              <span
+                key={columna.clave}
+                className="esqueleto-bloque"
+                style={{ maxWidth: `${74 + ((fila * 13 + indice * 29) % 70)}px` }}
+              />
+            ))}
+            {conAcciones ? (
+              <span className="esqueleto-bloque" style={{ maxWidth: '62px' }} />
+            ) : null}
+          </div>
+        ))}
       </div>
     )
   }
@@ -94,7 +118,7 @@ export default function TablaListado({
           <thead>
             <tr>
               {columnas.map((columna) => (
-                <th key={columna.clave} scope="col">
+                <th key={columna.clave} scope="col" className={claseColumna(columna)}>
                   {columna.encabezado || (
                     <span className="visually-hidden">{columna.encabezadoOculto}</span>
                   )}
@@ -116,6 +140,7 @@ export default function TablaListado({
                     <td
                       key={columna.clave}
                       data-label={columna.encabezado || columna.encabezadoOculto || ''}
+                      className={claseColumna(columna)}
                     >
                       {columna.render ? columna.render(fila) : fila[columna.clave]}
                     </td>
@@ -128,9 +153,10 @@ export default function TablaListado({
                             type="button"
                             className="icono"
                             aria-label={`Editar ${nombre}`}
+                            title="Editar"
                             onClick={() => onEditar(fila)}
                           >
-                            Editar
+                            <IconoEditar />
                           </button>
                         ) : null}
                         {onEliminar ? (
@@ -138,9 +164,10 @@ export default function TablaListado({
                             type="button"
                             className="icono peligro"
                             aria-label={`Eliminar ${nombre}`}
+                            title="Eliminar"
                             onClick={() => onEliminar(fila)}
                           >
-                            Borrar
+                            <IconoBorrar />
                           </button>
                         ) : null}
                       </div>

@@ -86,7 +86,8 @@ frontend/src/
     BadgeEstado.jsx
     Portada.jsx
     ModalFormulario.jsx
-    avisos.js         envoltorio de SweetAlert2 (éxito, error, confirmar borrado)
+    Iconos.jsx        iconos SVG en línea (menú y acciones)
+    avisos.js         envoltorio de SweetAlert2 (toast de éxito, error, confirmar borrado)
   pages/
     GenerosPage.jsx
     DirectoresPage.jsx
@@ -105,13 +106,17 @@ y ningún módulo comparte página con otro.
 
 ## 6. Componentes compartidos (props fijas)
 
-- `Layout` — marca, navegación de los 5 módulos, indicador de la API al pie.
+- `Layout` — marca, navegación de los 6 módulos con icono, indicador de la API al pie. En móvil el menú
+  es un cajón que se abre con el botón de la barra superior y se cierra con la X de dentro, el velo o ESC.
 - `EncabezadoPagina { titulo, subtitulo, accion }` — título en plural, contador y botón primario.
 - `TablaListado` — resuelve sola los estados (cargando, error, vacío, sin resultados) para que ningún
   módulo los reinvente. Props: `{ caption, columnas, filas, total, filtros, cargando, error, onReintentar,
   vacio, sinResultados, nombreRegistro, onEditar, onEliminar }`.
-  - `columnas`: `[{ clave, encabezado, render(fila) }]`; si el `<th>` va vacío, `encabezadoOculto` con el
-    texto para lector de pantalla.
+  - `columnas`: `[{ clave, encabezado, render(fila), alineacion }]`; si el `<th>` va vacío, `encabezadoOculto`
+    con el texto para lector de pantalla. `alineacion: 'derecha'` para cifras, años y fechas.
+  - Mientras carga dibuja un esqueleto con la forma de la tabla (`.esqueleto-fila`), no un spinner suelto.
+  - Las acciones de fila son dos botones cuadrados de 30 px con icono (`IconoEditar` / `IconoBorrar`) y
+    `aria-label` con el nombre del registro; no llevan texto visible.
   - `total`: registros sin filtrar. Es lo que distingue "no hay nada" (estado vacío con botón de crear) de
     "los filtros no dejan pasar nada" (aviso sin botón). Sin `total` se asume `filas.length`.
   - `filtros`: nodo opcional que se dibuja sobre la tabla dentro de la misma caja. Solo Media lo usa.
@@ -123,6 +128,8 @@ y ningún módulo comparte página con otro.
 - `ModalFormulario { abierto, titulo, onCerrar, onGuardar, guardando, children }`. El `<form>` ES el
   `.modal-content` (si se anida dentro, se rompe el flex de Bootstrap y el pie se sale de la pantalla a
   1366x768) y el diálogo lleva `modal-dialog-scrollable` como red de seguridad.
+- `Iconos.jsx` — iconos SVG en línea (16 px, trazo 1.7, `currentColor`) para el menú y las acciones.
+  Sin librería de iconos: el proyecto usa Bootstrap solo por CSS.
 - `avisos.js` — **el único mecanismo de avisos y confirmaciones es SweetAlert2**. Expone
   `exito(msg)`, `error(msg)` y `confirmarBorrado(nombre)` que devuelve true/false. No se usa el modal
   de Bootstrap para confirmar: dos mecanismos distintos para lo mismo confunden al usuario y al que
@@ -172,7 +179,8 @@ Media no tiene estado: no se le pone columna de estado ni campo en el formulario
 
 ## 9. Mensajes y errores (mapeo de la API)
 
-- 200/201 → aviso de éxito ("Género creado", "Cambios guardados").
+- 200/201 → aviso de éxito como toast abajo a la derecha ("Género creado", "Cambios guardados"), se va solo
+  en 2,2 s y no bloquea nada.
 - 400 → mostrar el texto que manda el backend, que viene en `{ error }`.
 - 404 → "Ese registro ya no existe" y recargar la lista.
 - 409 → el texto del backend: valor único repetido ("Ya existe un registro…") o registro en uso que
@@ -220,7 +228,8 @@ Lo que la auditoría encontró roto en el mockup y quedó corregido; todo módul
 ## 12. Responsive
 
 - Se graba el video a 1440x900 y debe verse bien a 1280 de ancho, sin scroll horizontal.
-- Por debajo de 768px la tabla pasa a tarjetas apiladas y la navegación a barra superior.
+- Por debajo de 768px la tabla pasa a tarjetas apiladas y la navegación a un cajón lateral con velo
+  (barra superior con el botón de menú, la marca y el punto de la API).
 - El modal se ve completo en pantallas de 1366x768 (que es la de muchos portátiles del grupo). Medido en
   el navegador: 688px de alto con el formulario de Media, sin scroll interno.
 

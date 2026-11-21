@@ -130,6 +130,7 @@ export default function GenerosPage() {
       {
         clave: 'fechaActualizacion',
         encabezado: 'Actualizado',
+        alineacion: 'derecha',
         render: (genero) => (
           <span className="mono">{formatearFecha(genero.fechaActualizacion)}</span>
         ),

@@ -206,6 +206,7 @@ export default function MediaPage() {
     {
       clave: 'anioEstreno',
       encabezado: 'Año',
+      alineacion: 'derecha',
       render: (registro) => (
         <span className="anio">{registro.anioEstreno ?? '—'}</span>
       ),

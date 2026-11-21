@@ -146,6 +146,7 @@ export default function ProductorasPage() {
       {
         clave: 'titulos',
         encabezado: 'Títulos',
+        alineacion: 'derecha',
         render: (registro) => {
           const cuantos = conteo.get(String(registro._id)) || 0
           return cuantos ? <span className="cifra">{cuantos}</span> : <span className="suave">—</span>
@@ -159,6 +160,7 @@ export default function ProductorasPage() {
       {
         clave: 'fechaActualizacion',
         encabezado: 'Actualizado',
+        alineacion: 'derecha',
         render: (registro) => (
           <span className="mono">{formatearFecha(registro.fechaActualizacion)}</span>
         ),

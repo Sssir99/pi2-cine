@@ -112,6 +112,7 @@ export default function TiposPage() {
       {
         clave: 'fechaActualizacion',
         encabezado: 'Actualizado',
+        alineacion: 'derecha',
         render: (registro) => (
           <span className="mono">{formatearFecha(registro.fechaActualizacion)}</span>
         ),
