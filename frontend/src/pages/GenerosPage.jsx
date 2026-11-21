@@ -110,11 +110,17 @@ export default function GenerosPage() {
   // nombre, descripción, estado, fecha de actualización.
   const columnas = useMemo(
     () => [
-      { clave: 'nombre', encabezado: 'Nombre' },
       {
-        clave: 'descripcion',
-        encabezado: 'Descripción',
-        render: (genero) => genero.descripcion || <span className="suave">—</span>,
+        clave: 'nombre',
+        encabezado: 'Nombre',
+        // Misma celda de dos líneas que usa Media con título y serial: el nombre manda y
+        // la descripción va debajo en gris. Evita una columna que solía quedar vacía.
+        render: (genero) => (
+          <>
+            <div className="titulo-fila">{genero.nombre}</div>
+            {genero.descripcion ? <div className="detalle-fila">{genero.descripcion}</div> : null}
+          </>
+        ),
       },
       {
         clave: 'estado',

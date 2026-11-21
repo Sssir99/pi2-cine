@@ -144,13 +144,17 @@ y ningún módulo comparte página con otro.
 
 Columnas por módulo:
 
-- Géneros: nombre, descripción, estado, fecha de actualización, acciones.
-- Directores: nombres, estado, fecha de actualización, acciones.
-- Productoras: nombre, slogan, descripción, estado, fecha de actualización, acciones.
-- Tipos: nombre, descripción, fecha de actualización, acciones.
+- Géneros: nombre + descripción (misma celda, dos líneas), estado, fecha de actualización, acciones.
+- Directores: nombres, títulos (cuántos lo usan), estado, fecha de actualización, acciones.
+- Productoras: nombre + slogan, descripción, títulos, estado, fecha de actualización, acciones.
+- Tipos: nombre + descripción (dos líneas), fecha de actualización, acciones.
 - Media: portada, título + serial, año, género, tipo, director, productora, acciones.
   (Director y productora van en la tabla: son FK obligatorias y sin ellas no se puede revisar el
   registro sin abrir el formulario.)
+
+La celda de dos líneas es la del molde: el nombre manda (`.titulo-fila`) y el dato de apoyo va
+debajo en gris (`.detalle-fila`). La columna "Títulos" cuenta las Media que usan ese registro; es lo
+que explica por qué un director o una productora en uso no se puede borrar (la API responde 409).
 
 Media no tiene estado: no se le pone columna de estado ni campo en el formulario.
 
@@ -171,7 +175,8 @@ Media no tiene estado: no se le pone columna de estado ni campo en el formulario
 - 200/201 → aviso de éxito ("Género creado", "Cambios guardados").
 - 400 → mostrar el texto que manda el backend, que viene en `{ error }`.
 - 404 → "Ese registro ya no existe" y recargar la lista.
-- 409 → "Ya existe un registro con ese nombre / serial / url".
+- 409 → el texto del backend: valor único repetido ("Ya existe un registro…") o registro en uso que
+  no se puede borrar ("No se puede eliminar el género: lo usan 2 títulos del catálogo").
 - 500 o red caída → "No se pudo conectar con la API. Verifica que el backend esté corriendo en
   localhost:3000".
 - DELETE responde `{ mensaje }`; GET, POST y PUT devuelven el documento.

@@ -5,6 +5,7 @@ import ModalFormulario from '../components/ModalFormulario'
 import BadgeEstado from '../components/BadgeEstado'
 import { confirmarBorrado, error as avisoError, exito } from '../components/avisos'
 import { actualizarProductora, crearProductora, eliminarProductora, listarProductoras } from '../api/productoras'
+import { listarMedia } from '../api/media'
 import { formatearFecha } from '../utils/formato'
 
 // Campos del formulario con los nombres del contrato: nombre, slogan, descripción y estado.
@@ -12,6 +13,9 @@ const FORMULARIO_VACIO = { nombre: '', slogan: '', descripcion: '', estado: 'act
 
 export default function ProductorasPage() {
   const [registros, setRegistros] = useState([])
+  // Títulos que usan cada registro: la tabla muestra cuántos produce cada productora,
+  // que es lo que explica por qué una en uso no se puede borrar.
+  const [media, setMedia] = useState([])
   const [cargando, setCargando] = useState(true)
   const [errorCarga, setErrorCarga] = useState(null)
 
@@ -24,7 +28,9 @@ export default function ProductorasPage() {
     setCargando(true)
     setErrorCarga(null)
     try {
-      setRegistros(await listarProductoras())
+      const [lista, titulos] = await Promise.all([listarProductoras(), listarMedia()])
+      setRegistros(lista)
+      setMedia(titulos)
     } catch (fallo) {
       setErrorCarga(fallo.mensaje) // el mensaje ya viene traducido desde cliente.js
     } finally {
@@ -104,18 +110,46 @@ export default function ProductorasPage() {
 
   // Columnas de la tabla, en el orden del contrato: nombre, slogan, descripción,
   // estado y fecha de actualización.
+  const conteo = useMemo(() => {
+    const mapa = new Map()
+    for (const titulo of media) {
+      const clave = String(titulo.productora)
+      mapa.set(clave, (mapa.get(clave) || 0) + 1)
+    }
+    return mapa
+  }, [media])
+
   const columnas = useMemo(
     () => [
-      { clave: 'nombre', encabezado: 'Nombre' },
       {
-        clave: 'slogan',
-        encabezado: 'Slogan',
-        render: (registro) => registro.slogan || <span className="suave">—</span>,
+        clave: 'nombre',
+        encabezado: 'Nombre',
+        render: (registro) => (
+          <>
+            <div className="titulo-fila">{registro.nombre}</div>
+            {registro.slogan ? <div className="detalle-fila">{registro.slogan}</div> : null}
+          </>
+        ),
       },
       {
         clave: 'descripcion',
         encabezado: 'Descripción',
-        render: (registro) => registro.descripcion || <span className="suave">—</span>,
+        render: (registro) =>
+          registro.descripcion ? (
+            <span className="recortado" title={registro.descripcion}>
+              {registro.descripcion}
+            </span>
+          ) : (
+            <span className="suave">—</span>
+          ),
+      },
+      {
+        clave: 'titulos',
+        encabezado: 'Títulos',
+        render: (registro) => {
+          const cuantos = conteo.get(String(registro._id)) || 0
+          return cuantos ? <span className="cifra">{cuantos}</span> : <span className="suave">—</span>
+        },
       },
       {
         clave: 'estado',
@@ -130,7 +164,7 @@ export default function ProductorasPage() {
         ),
       },
     ],
-    [],
+    [conteo],
   )
 
   const contador = `${registros.length} registro${registros.length === 1 ? '' : 's'}`

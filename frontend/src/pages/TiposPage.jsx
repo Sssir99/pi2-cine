@@ -99,11 +99,15 @@ export default function TiposPage() {
   // Columnas de la tabla. Tipo no lleva estado.
   const columnas = useMemo(
     () => [
-      { clave: 'nombre', encabezado: 'Nombre' },
       {
-        clave: 'descripcion',
-        encabezado: 'Descripción',
-        render: (registro) => registro.descripcion || <span className="suave">—</span>,
+        clave: 'nombre',
+        encabezado: 'Nombre',
+        render: (registro) => (
+          <>
+            <div className="titulo-fila">{registro.nombre}</div>
+            {registro.descripcion ? <div className="detalle-fila">{registro.descripcion}</div> : null}
+          </>
+        ),
       },
       {
         clave: 'fechaActualizacion',

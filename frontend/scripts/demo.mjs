@@ -1,6 +1,6 @@
 // Datos de ejemplo para grabar el video de la entrega 2.
 //
-//   npm run demo           carga 3 títulos con sus relaciones (idempotente)
+//   npm run demo           carga 5 títulos con sus relaciones (idempotente)
 //   npm run demo:limpiar   borra solo lo que carga este script
 //
 // Va por la API igual que la app, no por Mongo directo: si algo falla, es un
@@ -29,8 +29,39 @@ const BASE = leerBase()
 const GENEROS = ['ciencia ficción', 'drama']
 const TIPOS = ['película', 'serie']
 
-const DIRECTORES = ['Christopher Nolan', 'Denis Villeneuve', 'Johan Renck']
-const PRODUCTORAS = ['Warner Bros', 'Legendary Pictures', 'HBO']
+const DIRECTORES = ['Christopher Nolan', 'Denis Villeneuve', 'Johan Renck', 'Vince Gilligan']
+const PRODUCTORAS = [
+  'Warner Bros',
+  'Legendary Pictures',
+  'HBO',
+  'FilmNation Entertainment',
+  'Sony Pictures Television',
+]
+
+// Slogan y descripción de cada productora: sin ellos la tabla se ve vacía y el panel
+// parece a medio llenar. Solo se rellenan si están en blanco.
+const DATOS_PRODUCTORA = {
+  'Warner Bros': {
+    slogan: 'El estudio que inventó el cine sonoro.',
+    descripcion: 'Productora y distribuidora estadounidense fundada en 1923.',
+  },
+  'Legendary Pictures': {
+    slogan: 'Grandes historias, gran escala.',
+    descripcion: 'Productora estadounidense de cine de género y franquicias.',
+  },
+  HBO: {
+    slogan: 'No es televisión, es HBO.',
+    descripcion: 'Cadena y productora de series de prestigio.',
+  },
+  'FilmNation Entertainment': {
+    slogan: 'Cine independiente con alcance global.',
+    descripcion: 'Productora y distribuidora de cine independiente.',
+  },
+  'Sony Pictures Television': {
+    slogan: 'Series para todos los públicos.',
+    descripcion: 'División televisiva de Sony Pictures.',
+  },
+}
 
 const TITULOS = [
   {
@@ -71,6 +102,32 @@ const TITULOS = [
     tipo: 'serie',
     director: 'Johan Renck',
     productora: 'HBO',
+  },
+  {
+    serial: 'CINE-004',
+    titulo: 'Arrival',
+    sinopsis:
+      'Una lingüista intenta comunicarse con los visitantes de una nave antes de que el miedo gane la partida.',
+    url: 'https://cdn.picine.dev/peliculas/arrival.mp4',
+    imagenPortada: 'https://picsum.photos/seed/arrival/300/450',
+    anioEstreno: 2016,
+    genero: 'ciencia ficción',
+    tipo: 'película',
+    director: 'Denis Villeneuve',
+    productora: 'FilmNation Entertainment',
+  },
+  {
+    serial: 'CINE-005',
+    titulo: 'Breaking Bad',
+    sinopsis:
+      'Un profesor de química con cáncer terminal se convierte en fabricante de metanfetamina para dejar dinero a su familia.',
+    url: 'https://cdn.picine.dev/series/breaking-bad.mp4',
+    imagenPortada: 'https://picsum.photos/seed/breakingbad/300/450',
+    anioEstreno: 2008,
+    genero: 'drama',
+    tipo: 'serie',
+    director: 'Vince Gilligan',
+    productora: 'Sony Pictures Television',
   },
 ]
 
@@ -145,7 +202,26 @@ async function cargar() {
 
   const productoras = {}
   for (const nombre of PRODUCTORAS) {
-    productoras[nombre] = await asegurar('/productoras', 'nombre', nombre, { nombre }, `productora "${nombre}"`)
+    productoras[nombre] = await asegurar(
+      '/productoras',
+      'nombre',
+      nombre,
+      { nombre, ...(DATOS_PRODUCTORA[nombre] || {}) },
+      `productora "${nombre}"`,
+    )
+  }
+
+  // Las que ya existían se quedaron sin slogan ni descripción (asegurar no toca lo que
+  // encuentra). Se completan aquí, y solo si están en blanco, para no pisar cambios.
+  for (const productora of await lista('/productoras')) {
+    const datos = DATOS_PRODUCTORA[productora.nombre]
+    if (!datos || (productora.slogan && productora.descripcion)) continue
+    const { estado } = await pedir('PUT', `/productoras/${productora._id}`, {
+      nombre: productora.nombre,
+      estado: productora.estado || 'activo',
+      ...datos,
+    })
+    if (estado === 200) console.log(`  completada  productora "${productora.nombre}"`)
   }
 
   for (const titulo of TITULOS) {

@@ -5,6 +5,7 @@ import ModalFormulario from '../components/ModalFormulario'
 import BadgeEstado from '../components/BadgeEstado'
 import { confirmarBorrado, error as avisoError, exito } from '../components/avisos'
 import { actualizarDirector, crearDirector, eliminarDirector, listarDirectores } from '../api/directores'
+import { listarMedia } from '../api/media'
 import { formatearFecha } from '../utils/formato'
 
 // Campos del formulario con los nombres del contrato: Director solo tiene nombres y estado.
@@ -12,6 +13,9 @@ const FORMULARIO_VACIO = { nombres: '', estado: 'activo' }
 
 export default function DirectoresPage() {
   const [registros, setRegistros] = useState([])
+  // Títulos que usan cada registro: se cuentan con la lista de Media para que la tabla
+  // muestre de un vistazo qué directores están en uso (y por eso no se pueden borrar).
+  const [media, setMedia] = useState([])
   const [cargando, setCargando] = useState(true)
   const [errorCarga, setErrorCarga] = useState(null)
 
@@ -24,7 +28,9 @@ export default function DirectoresPage() {
     setCargando(true)
     setErrorCarga(null)
     try {
-      setRegistros(await listarDirectores())
+      const [lista, titulos] = await Promise.all([listarDirectores(), listarMedia()])
+      setRegistros(lista)
+      setMedia(titulos)
     } catch (fallo) {
       setErrorCarga(fallo.mensaje) // el mensaje ya viene traducido desde cliente.js
     } finally {
@@ -99,9 +105,31 @@ export default function DirectoresPage() {
   }
 
   // Columnas de la tabla: nombres, estado y fecha de actualización.
+  const conteo = useMemo(() => {
+    const mapa = new Map()
+    for (const titulo of media) {
+      const clave = String(titulo.director)
+      mapa.set(clave, (mapa.get(clave) || 0) + 1)
+    }
+    return mapa
+  }, [media])
+
   const columnas = useMemo(
     () => [
-      { clave: 'nombres', encabezado: 'Nombres' },
+      {
+        clave: 'nombres',
+        encabezado: 'Nombres',
+      },
+      {
+        // Cuántos títulos lo usan. Es el dato que explica por qué un director no se
+        // puede borrar y hace que la tabla no sea una sola columna de texto.
+        clave: 'titulos',
+        encabezado: 'Títulos',
+        render: (registro) => {
+          const cuantos = conteo.get(String(registro._id)) || 0
+          return cuantos ? <span className="cifra">{cuantos}</span> : <span className="suave">—</span>
+        },
+      },
       {
         clave: 'estado',
         encabezado: 'Estado',
@@ -115,7 +143,7 @@ export default function DirectoresPage() {
         ),
       },
     ],
-    [],
+    [conteo],
   )
 
   const contador = `${registros.length} registro${registros.length === 1 ? '' : 's'}`

@@ -317,6 +317,31 @@ a {
   line-height: 1.2;
 }
 
+/* Segunda línea de una celda: descripción, slogan o cualquier dato de apoyo.
+   Más pequeña y en gris para que la vista caiga primero en el nombre. */
+.detalle-fila {
+  font-size: 12px;
+  color: var(--texto-suave);
+  line-height: 1.35;
+  margin-top: 2px;
+}
+
+/* Números de conteo (títulos por director o productora). */
+.cifra {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+/* Texto largo en una celda: una sola línea con puntos suspensivos. */
+.recortado {
+  display: inline-block;
+  max-width: 38ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+}
+
 .serial {
   font-size: 12px;
   color: var(--texto-suave);

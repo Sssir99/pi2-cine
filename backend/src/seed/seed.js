@@ -8,16 +8,16 @@ const Genero = require('../models/Genero');
 const Tipo = require('../models/Tipo');
 
 const generosIniciales = [
-  { nombre: 'acción' },
-  { nombre: 'aventura' },
-  { nombre: 'ciencia ficción' },
-  { nombre: 'drama' },
-  { nombre: 'terror' }
+  { nombre: 'acción', descripcion: 'Persecuciones, peleas y ritmo alto.' },
+  { nombre: 'aventura', descripcion: 'Viajes, exploración y riesgo.' },
+  { nombre: 'ciencia ficción', descripcion: 'Futuro, tecnología y espacio.' },
+  { nombre: 'drama', descripcion: 'Conflictos humanos y personajes.' },
+  { nombre: 'terror', descripcion: 'Miedo, suspenso y lo sobrenatural.' }
 ];
 
 const tiposIniciales = [
-  { nombre: 'película' },
-  { nombre: 'serie' }
+  { nombre: 'película', descripcion: 'Obra única, con duración de largometraje.' },
+  { nombre: 'serie', descripcion: 'Varios episodios y temporadas.' }
 ];
 
 const seed = async () => {
