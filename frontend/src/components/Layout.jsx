@@ -4,10 +4,12 @@ import { comprobarApi } from '../api/cliente'
 import {
   IconoDirector,
   IconoGenero,
+  IconoLuna,
   IconoMedia,
   IconoMenu,
   IconoProductora,
   IconoResumen,
+  IconoSol,
   IconoTipo,
 } from './Iconos'
 
@@ -27,6 +29,16 @@ export default function Layout({ children }) {
   const [apiEnLinea, setApiEnLinea] = useState(null)
   // En móvil el menú vive en un cajón lateral: oculto por defecto y se abre con el botón.
   const [menuAbierto, setMenuAbierto] = useState(false)
+  // Tema claro u oscuro: se lee del <html> (main.jsx ya aplicó el guardado) y se guarda.
+  const [tema, setTema] = useState(() =>
+    document.documentElement.dataset.tema === 'claro' ? 'claro' : 'oscuro',
+  )
+
+  useEffect(() => {
+    document.documentElement.dataset.tema = tema
+    document.documentElement.setAttribute('data-bs-theme', tema === 'claro' ? 'light' : 'dark')
+    localStorage.setItem('tema', tema)
+  }, [tema])
 
   useEffect(() => {
     let vivo = true
@@ -112,6 +124,16 @@ export default function Layout({ children }) {
             </NavLink>
           ))}
         </nav>
+        <button
+          type="button"
+          className="tema"
+          onClick={() => setTema((actual) => (actual === 'claro' ? 'oscuro' : 'claro'))}
+          aria-label={`Cambiar al tema ${tema === 'claro' ? 'oscuro' : 'claro'}`}
+        >
+          {tema === 'claro' ? <IconoLuna /> : <IconoSol />}
+          <span>{tema === 'claro' ? 'Tema oscuro' : 'Tema claro'}</span>
+        </button>
+
         <div className="pie">
           <span className={`punto ${estadoApi}`.trim()} aria-hidden="true" />
           <span>{textoApi}</span>

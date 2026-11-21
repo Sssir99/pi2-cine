@@ -130,3 +130,20 @@ export function IconoMas(props) {
     </Con>
   )
 }
+
+export function IconoSol(props) {
+  return (
+    <Con {...props}>
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.2 5.2l1.4 1.4M17.4 17.4l1.4 1.4M18.8 5.2l-1.4 1.4M6.6 17.4l-1.4 1.4" />
+    </Con>
+  )
+}
+
+export function IconoLuna(props) {
+  return (
+    <Con {...props}>
+      <path d="M20.5 14.8A8.6 8.6 0 0 1 9.2 3.5a8.6 8.6 0 1 0 11.3 11.3z" />
+    </Con>
+  )
+}

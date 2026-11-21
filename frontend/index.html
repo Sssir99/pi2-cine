@@ -6,6 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Panel de administración del catálogo de películas y series — Proyecto Integrado 2" />
     <title>PI2 Cine — Administración</title>
+    <script>
+      // Tema guardado antes de pintar: si no, quien elige el claro ve un parpadeo oscuro.
+      try {
+        var tema = localStorage.getItem('tema') === 'claro' ? 'claro' : 'oscuro'
+        document.documentElement.dataset.tema = tema
+        document.documentElement.setAttribute('data-bs-theme', tema === 'claro' ? 'light' : 'dark')
+      } catch (error) {
+        /* sin localStorage (modo privado raro): se queda el tema por defecto */
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

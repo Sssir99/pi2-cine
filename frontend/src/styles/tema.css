@@ -21,6 +21,18 @@
   --peligro-hover: #ff7373;
   --peligro-tenue: rgba(239, 90, 90, 0.08);
   --ok: #3ecf8e;
+  /* Colores derivados: lo que se pinta encima del acento, chips, tipos, foco. */
+  --sobre-acento: #15181e;
+  --sobre-peligro: #1b0d0d;
+  --acento-fuerte: #b47b17;
+  --texto-chip: #cfd6e2;
+  --tipo-texto: #9fb4ff;
+  --tipo-fondo: rgba(99, 132, 255, 0.14);
+  --tipo2-texto: #c3a6ff;
+  --tipo2-fondo: rgba(160, 120, 255, 0.14);
+  --borde-peligro: rgba(239, 90, 90, 0.55);
+  --anillo-foco: rgba(245, 185, 66, 0.15);
+  --esqueleto: #232a35;
   --fuente: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --mono: ui-monospace, Consolas, "Courier New", monospace;
   --esp-1: 4px;
@@ -30,6 +42,52 @@
   --esp-5: 20px;
   --esp-6: 24px;
   --esp-8: 32px;
+}
+
+/* ---------- Tema claro ----------
+   Mismos tokens, otros valores: la paleta del mockup B. Todo lo que se pinta sale de
+   aquí, así que ningún componente necesita saber en qué tema está. Se activa con
+   data-tema="claro" en <html>; data-bs-theme lo lee Bootstrap para modales y campos. */
+
+[data-tema='claro'] {
+  color-scheme: light;
+  --fondo: #f5f6f8;
+  --superficie: #ffffff;
+  --superficie-2: #f0f2f6;
+  --borde: #e3e6eb;
+  --borde-fuerte: #c9cfd8;
+  --texto: #141821;
+  --texto-suave: #5f6673;
+  --texto-ayuda: #5f6673;
+  --acento: #1e40af;
+  --acento-hover: #1b3a9e;
+  --acento-tenue: rgba(30, 64, 175, 0.1);
+  --peligro: #c0392b;
+  --peligro-hover: #a93226;
+  --peligro-tenue: rgba(192, 57, 43, 0.08);
+  --ok: #0f9d58;
+  --sobre-acento: #ffffff;
+  --sobre-peligro: #ffffff;
+  --acento-fuerte: #16307f;
+  --texto-chip: #3b4250;
+  --tipo-texto: #1e40af;
+  --tipo-fondo: rgba(30, 64, 175, 0.1);
+  --tipo2-texto: #6d28d9;
+  --tipo2-fondo: rgba(109, 40, 217, 0.1);
+  --borde-peligro: rgba(192, 57, 43, 0.5);
+  --anillo-foco: rgba(30, 64, 175, 0.16);
+  --esqueleto: #e9ecf1;
+}
+
+/* El velo del cajón en móvil aclara un poco menos sobre fondo blanco. */
+[data-tema='claro'] .velo {
+  background: rgba(20, 24, 33, 0.35);
+}
+
+[data-tema='claro'] .caja,
+[data-tema='claro'] .panel,
+[data-tema='claro'] .cifra-tarjeta {
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06);
 }
 
 /* ---------- Base ---------- */
@@ -144,8 +202,29 @@ a {
   opacity: 0.8;
 }
 
-.lateral .pie {
+/* Botón de tema: al pie del menú, encima del estado de la API. */
+.tema {
   margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+  width: 100%;
+  background: none;
+  border: 1px solid var(--borde-fuerte);
+  border-radius: 9px;
+  padding: 8px 10px;
+  color: var(--texto-suave);
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.tema:hover {
+  color: var(--texto);
+  border-color: var(--borde-fuerte);
+}
+
+.lateral .pie {
+  margin-top: 8px;
   font-size: 12.5px;
   color: var(--texto-suave);
   padding: 10px;
@@ -202,7 +281,7 @@ a {
 .btn-acento {
   background: var(--acento);
   border-color: var(--acento);
-  color: #15181e;
+  color: var(--sobre-acento);
   font-weight: 600;
 }
 
@@ -226,7 +305,7 @@ a {
 .btn-peligro {
   background: var(--peligro);
   border-color: var(--peligro);
-  color: #1b0d0d;
+  color: var(--sobre-peligro);
   font-weight: 600;
 }
 
@@ -329,8 +408,8 @@ a {
   justify-content: center;
   font-size: 12px;
   font-weight: 700;
-  color: #0f1115;
-  background: linear-gradient(140deg, var(--acento), #b47b17);
+  color: var(--sobre-acento);
+  background: linear-gradient(140deg, var(--acento), var(--acento-fuerte));
   overflow: hidden;
   flex: 0 0 auto;
 }
@@ -387,7 +466,7 @@ a {
 
 .genero {
   font-size: 12.5px;
-  color: #cfd6e2;
+  color: var(--texto-chip);
   background: var(--superficie-2);
   border: 1px solid var(--borde);
   padding: 3px 10px;
@@ -399,21 +478,21 @@ a {
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: #9fb4ff;
-  background: rgba(99, 132, 255, 0.14);
+  color: var(--tipo-texto);
+  background: var(--tipo-fondo);
   padding: 3px 8px;
   border-radius: 6px;
   white-space: nowrap;
 }
 
 .tipo--serie {
-  color: #c3a6ff;
-  background: rgba(160, 120, 255, 0.14);
+  color: var(--tipo2-texto);
+  background: var(--tipo2-fondo);
 }
 
 .anio {
   font-variant-numeric: tabular-nums;
-  color: #cfd6e2;
+  color: var(--texto-chip);
 }
 
 .suave {
@@ -432,7 +511,7 @@ a {
   align-items: center;
   gap: 6px;
   font-size: 12.5px;
-  color: #cfd6e2;
+  color: var(--texto-chip);
   background: var(--superficie-2);
   border: 1px solid var(--borde);
   padding: 3px 10px;
@@ -481,7 +560,7 @@ a {
 }
 
 .icono.peligro:hover {
-  border-color: rgba(239, 90, 90, 0.55);
+  border-color: var(--borde-peligro);
   color: var(--peligro);
   background: var(--peligro-tenue);
 }
@@ -526,7 +605,7 @@ a {
 
 .form-label {
   font-size: 13px;
-  color: #c3cad6;
+  color: var(--texto-chip);
   margin-bottom: var(--esp-1);
   font-weight: 500;
 }
@@ -549,7 +628,7 @@ a {
   background: var(--fondo);
   border-color: var(--acento);
   color: var(--texto);
-  box-shadow: 0 0 0 3px rgba(245, 185, 66, 0.15);
+  box-shadow: 0 0 0 3px var(--anillo-foco);
 }
 
 .form-control.is-invalid,
@@ -606,7 +685,7 @@ a {
 /* Texto oscuro sobre el botón de confirmar: el blanco por defecto no se lee
    sobre el ámbar del tema ni sobre el rojo de "Sí, eliminar". */
 .swal2-container .swal2-styled.swal-confirmar {
-  color: #15181e;
+  color: var(--sobre-acento);
 }
 
 /* Aviso de éxito: franja compacta abajo a la derecha. */
@@ -797,7 +876,7 @@ a {
   height: 9px;
   border-radius: 6px;
   flex: 1 1 0;
-  background: linear-gradient(90deg, var(--superficie-2) 25%, #232a35 50%, var(--superficie-2) 75%);
+  background: linear-gradient(90deg, var(--superficie-2) 25%, var(--esqueleto) 50%, var(--superficie-2) 75%);
   background-size: 420px 100%;
   animation: brillo 1.3s linear infinite;
 }
