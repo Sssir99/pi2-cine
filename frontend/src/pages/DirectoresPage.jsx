@@ -7,6 +7,8 @@ import { confirmarBorrado, error as avisoError, exito } from '../components/avis
 import { actualizarDirector, crearDirector, eliminarDirector, listarDirectores } from '../api/directores'
 import { listarMedia } from '../api/media'
 import { formatearFecha } from '../utils/formato'
+import Filtros, { Buscador, Selector } from '../components/Filtros'
+import { filtrarPorTexto, ordenarFilas } from '../utils/tabla'
 
 // Campos del formulario con los nombres del contrato: Director solo tiene nombres y estado.
 const FORMULARIO_VACIO = { nombres: '', estado: 'activo' }
@@ -18,11 +20,17 @@ export default function DirectoresPage() {
   const [media, setMedia] = useState([])
   const [cargando, setCargando] = useState(true)
   const [errorCarga, setErrorCarga] = useState(null)
+  const [filtroTexto, setFiltroTexto] = useState('')
+  const [filtroEstado, setFiltroEstado] = useState('')
+  // null = el orden que devuelve la API; al pulsar una columna se ordena aquí en el cliente.
+  const [orden, setOrden] = useState(null)
 
   const [modalAbierto, setModalAbierto] = useState(false)
   const [editando, setEditando] = useState(null) // null = creando
   const [formulario, setFormulario] = useState(FORMULARIO_VACIO)
   const [guardando, setGuardando] = useState(false)
+  // ¿Se tocó el formulario? Al cerrar con cambios sin guardar se pide confirmación.
+  const [tocado, setTocado] = useState(false)
 
   const cargar = useCallback(async () => {
     setCargando(true)
@@ -48,6 +56,7 @@ export default function DirectoresPage() {
   const abrirCrear = () => {
     setEditando(null)
     setFormulario(FORMULARIO_VACIO)
+    setTocado(false)
     setModalAbierto(true)
   }
 
@@ -57,11 +66,13 @@ export default function DirectoresPage() {
       nombres: registro.nombres || '',
       estado: registro.estado || 'activo',
     })
+    setTocado(false)
     setModalAbierto(true)
   }
 
   const cambiarCampo = (campo) => (evento) => {
     setFormulario((actual) => ({ ...actual, [campo]: evento.target.value }))
+    setTocado(true)
   }
 
   const guardar = async () => {
@@ -119,12 +130,14 @@ export default function DirectoresPage() {
       {
         clave: 'nombres',
         encabezado: 'Nombres',
+        ordenable: true,
       },
       {
         // Cuántos títulos lo usan. Es el dato que explica por qué un director no se
         // puede borrar y hace que la tabla no sea una sola columna de texto.
         clave: 'titulos',
         encabezado: 'Títulos',
+        ordenable: true,
         alineacion: 'derecha',
         render: (registro) => {
           const cuantos = conteo.get(String(registro._id)) || 0
@@ -134,11 +147,13 @@ export default function DirectoresPage() {
       {
         clave: 'estado',
         encabezado: 'Estado',
+        ordenable: true,
         render: (registro) => <BadgeEstado estado={registro.estado} />,
       },
       {
         clave: 'fechaActualizacion',
         encabezado: 'Actualizado',
+        ordenable: true,
         alineacion: 'derecha',
         render: (registro) => (
           <span className="mono">{formatearFecha(registro.fechaActualizacion)}</span>
@@ -146,6 +161,38 @@ export default function DirectoresPage() {
       },
     ],
     [conteo],
+  )
+
+  // Filtro y orden en el cliente: la lista completa ya está en memoria.
+  const filas = useMemo(() => {
+    const porTexto = filtrarPorTexto(registros, filtroTexto, ['nombres'])
+    const porEstado = filtroEstado ? porTexto.filter((registro) => registro.estado === filtroEstado) : porTexto
+    const columna = columnas.find((c) => c.clave === orden?.campo)
+    return ordenarFilas(porEstado, columna, orden?.direccion || 'asc')
+  }, [registros, filtroTexto, filtroEstado, columnas, orden])
+
+  const alternarOrden = (columna) => {
+    setOrden((actual) =>
+      actual && actual.campo === columna.clave
+        ? { campo: columna.clave, direccion: actual.direccion === 'asc' ? 'desc' : 'asc' }
+        : { campo: columna.clave, direccion: 'asc' },
+    )
+  }
+
+  const filtros = (
+    <Filtros>
+      <Buscador
+        id="filtro-texto"
+        valor={filtroTexto}
+        onCambio={setFiltroTexto}
+        etiqueta="Buscar por nombre"
+      />
+      <Selector id="filtro-estado" valor={filtroEstado} onCambio={setFiltroEstado} etiqueta="Filtrar por estado">
+        <option value="">Todos los estados</option>
+        <option value="activo">Solo activos</option>
+        <option value="inactivo">Solo inactivos</option>
+      </Selector>
+    </Filtros>
   )
 
   const contador = `${registros.length} registro${registros.length === 1 ? '' : 's'}`
@@ -166,10 +213,18 @@ export default function DirectoresPage() {
       <TablaListado
         caption="Directores registrados en el catálogo"
         columnas={columnas}
-        filas={registros}
+        filas={filas}
+        total={registros.length}
+        filtros={filtros}
+        orden={orden}
+        onOrdenar={alternarOrden}
         cargando={cargando}
         error={errorCarga}
         onReintentar={cargar}
+        sinResultados={{
+          titulo: 'Ningún director coincide con la búsqueda.',
+          texto: 'Prueba con otro nombre o quita los filtros.',
+        }}
         vacio={{
           titulo: 'Todavía no hay directores registrados.',
           texto: 'Cuando agregues el primero, aparecerá en esta tabla.',
@@ -187,6 +242,7 @@ export default function DirectoresPage() {
         onCerrar={() => setModalAbierto(false)}
         onGuardar={guardar}
         guardando={guardando}
+        sucio={tocado}
       >
         <fieldset className="grupo">
           <legend>Datos del director</legend>

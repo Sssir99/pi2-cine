@@ -5,6 +5,8 @@ import ModalFormulario from '../components/ModalFormulario'
 import { confirmarBorrado, error as avisoError, exito } from '../components/avisos'
 import { actualizarTipo, crearTipo, eliminarTipo, listarTipos } from '../api/tipos'
 import { formatearFecha } from '../utils/formato'
+import Filtros, { Buscador } from '../components/Filtros'
+import { filtrarPorTexto, ordenarFilas } from '../utils/tabla'
 
 // Campos del formulario vacío, con los nombres del contrato (sin fechas).
 // Tipo NO lleva estado.
@@ -14,11 +16,16 @@ export default function TiposPage() {
   const [registros, setRegistros] = useState([])
   const [cargando, setCargando] = useState(true)
   const [errorCarga, setErrorCarga] = useState(null)
+  const [filtroTexto, setFiltroTexto] = useState('')
+  // null = el orden que devuelve la API; al pulsar una columna se ordena aquí en el cliente.
+  const [orden, setOrden] = useState(null)
 
   const [modalAbierto, setModalAbierto] = useState(false)
   const [editando, setEditando] = useState(null) // null = creando
   const [formulario, setFormulario] = useState(FORMULARIO_VACIO)
   const [guardando, setGuardando] = useState(false)
+  // ¿Se tocó el formulario? Al cerrar con cambios sin guardar se pide confirmación.
+  const [tocado, setTocado] = useState(false)
 
   const cargar = useCallback(async () => {
     setCargando(true)
@@ -40,6 +47,7 @@ export default function TiposPage() {
   const abrirCrear = () => {
     setEditando(null)
     setFormulario(FORMULARIO_VACIO)
+    setTocado(false)
     setModalAbierto(true)
   }
 
@@ -49,11 +57,13 @@ export default function TiposPage() {
       nombre: registro.nombre || '',
       descripcion: registro.descripcion || '',
     })
+    setTocado(false)
     setModalAbierto(true)
   }
 
   const cambiarCampo = (campo) => (evento) => {
     setFormulario((actual) => ({ ...actual, [campo]: evento.target.value }))
+    setTocado(true)
   }
 
   const guardar = async () => {
@@ -102,6 +112,7 @@ export default function TiposPage() {
       {
         clave: 'nombre',
         encabezado: 'Nombre',
+        ordenable: true,
         render: (registro) => (
           <>
             <div className="titulo-fila">{registro.nombre}</div>
@@ -112,6 +123,7 @@ export default function TiposPage() {
       {
         clave: 'fechaActualizacion',
         encabezado: 'Actualizado',
+        ordenable: true,
         alineacion: 'derecha',
         render: (registro) => (
           <span className="mono">{formatearFecha(registro.fechaActualizacion)}</span>
@@ -119,6 +131,32 @@ export default function TiposPage() {
       },
     ],
     [],
+  )
+
+  // Filtro y orden en el cliente: la lista completa ya está en memoria.
+  const filas = useMemo(() => {
+    const porTexto = filtrarPorTexto(registros, filtroTexto, ['nombre', 'descripcion'])
+    const columna = columnas.find((c) => c.clave === orden?.campo)
+    return ordenarFilas(porTexto, columna, orden?.direccion || 'asc')
+  }, [registros, filtroTexto, columnas, orden])
+
+  const alternarOrden = (columna) => {
+    setOrden((actual) =>
+      actual && actual.campo === columna.clave
+        ? { campo: columna.clave, direccion: actual.direccion === 'asc' ? 'desc' : 'asc' }
+        : { campo: columna.clave, direccion: 'asc' },
+    )
+  }
+
+  const filtros = (
+    <Filtros>
+      <Buscador
+        id="filtro-texto"
+        valor={filtroTexto}
+        onCambio={setFiltroTexto}
+        etiqueta="Buscar por nombre o descripción"
+      />
+    </Filtros>
   )
 
   const contador = `${registros.length} registro${registros.length === 1 ? '' : 's'}`
@@ -138,10 +176,18 @@ export default function TiposPage() {
       <TablaListado
         caption="Tipos registrados en el catálogo"
         columnas={columnas}
-        filas={registros}
+        filas={filas}
+        total={registros.length}
+        filtros={filtros}
+        orden={orden}
+        onOrdenar={alternarOrden}
         cargando={cargando}
         error={errorCarga}
         onReintentar={cargar}
+        sinResultados={{
+          titulo: 'Ningún tipo coincide con la búsqueda.',
+          texto: 'Prueba con otro término.',
+        }}
         vacio={{
           titulo: 'Todavía no hay tipos registrados.',
           texto: 'Cuando agregues el primero, aparecerá en esta tabla.',
@@ -159,6 +205,7 @@ export default function TiposPage() {
         onCerrar={() => setModalAbierto(false)}
         onGuardar={guardar}
         guardando={guardando}
+        sucio={tocado}
       >
         <fieldset className="grupo">
           <legend>Datos del tipo</legend>

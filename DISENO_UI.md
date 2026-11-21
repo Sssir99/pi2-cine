@@ -87,6 +87,7 @@ frontend/src/
     Portada.jsx
     ModalFormulario.jsx
     Iconos.jsx        iconos SVG en línea (menú y acciones)
+    Filtros.jsx       barra de filtros: Buscador y Selector
     avisos.js         envoltorio de SweetAlert2 (toast de éxito, error, confirmar borrado)
   pages/
     GenerosPage.jsx
@@ -112,8 +113,12 @@ y ningún módulo comparte página con otro.
 - `TablaListado` — resuelve sola los estados (cargando, error, vacío, sin resultados) para que ningún
   módulo los reinvente. Props: `{ caption, columnas, filas, total, filtros, cargando, error, onReintentar,
   vacio, sinResultados, nombreRegistro, onEditar, onEliminar }`.
-  - `columnas`: `[{ clave, encabezado, render(fila), alineacion }]`; si el `<th>` va vacío, `encabezadoOculto`
-    con el texto para lector de pantalla. `alineacion: 'derecha'` para cifras, años y fechas.
+  - `columnas`: `[{ clave, encabezado, render(fila), alineacion, ordenable, valor }]`; si el `<th>` va vacío,
+    `encabezadoOculto` con el texto para lector de pantalla. `alineacion: 'derecha'` para cifras, años y
+    fechas. `ordenable: true` hace la columna pulsable; `valor(fila)` dice por qué se ordena cuando la celda
+    pinta otra cosa (el nombre del género en vez del ObjectId).
+  - `orden` y `onOrdenar`: el módulo guarda `{ campo, direccion }` y ordena con `utils/tabla.js`. El `th`
+    lleva `aria-sort` para que el lector de pantalla anuncie la columna activa.
   - Mientras carga dibuja un esqueleto con la forma de la tabla (`.esqueleto-fila`), no un spinner suelto.
   - Las acciones de fila son dos botones cuadrados de 30 px con icono (`IconoEditar` / `IconoBorrar`) y
     `aria-label` con el nombre del registro; no llevan texto visible.
@@ -125,13 +130,16 @@ y ningún módulo comparte página con otro.
 - `BadgeEstado { estado }` — activo / inactivo.
 - `Portada { url, titulo }` — imagen si hay url; si no, recuadro con las iniciales del título
   (una palabra usa sus tres primeras letras: INT; dos o más, la inicial de cada una: BB, DP).
-- `ModalFormulario { abierto, titulo, onCerrar, onGuardar, guardando, children }`. El `<form>` ES el
+- `Filtros` + `Buscador` + `Selector` — barra de filtros con el mismo marcado en todas las pantallas. La
+  etiqueta va oculta (`visually-hidden`) porque el placeholder y la primera opción ya explican el control.
+- `ModalFormulario { abierto, titulo, onCerrar, onGuardar, guardando, sucio, children }`. El `<form>` ES el
   `.modal-content` (si se anida dentro, se rompe el flex de Bootstrap y el pie se sale de la pantalla a
   1366x768) y el diálogo lleva `modal-dialog-scrollable` como red de seguridad.
 - `Iconos.jsx` — iconos SVG en línea (16 px, trazo 1.7, `currentColor`) para el menú y las acciones.
   Sin librería de iconos: el proyecto usa Bootstrap solo por CSS.
 - `avisos.js` — **el único mecanismo de avisos y confirmaciones es SweetAlert2**. Expone
-  `exito(msg)`, `error(msg)` y `confirmarBorrado(nombre)` que devuelve true/false. No se usa el modal
+  `exito(msg)`, `error(msg)`, `confirmarBorrado(nombre)` y `confirmarDescartar()`, que devuelven true/false.
+  No se usa el modal
   de Bootstrap para confirmar: dos mecanismos distintos para lo mismo confunden al usuario y al que
   copia el patrón.
 - `ErrorBoundary` — envuelve las rutas en `App.jsx` con `key={pathname}`. Si una pantalla lanza un
@@ -141,7 +149,9 @@ y ningún módulo comparte página con otro.
 ## 7. Anatomía de una pantalla CRUD (mismo orden siempre)
 
 1. Encabezado: título en plural, contador ("5 registros") y botón "+ Nuevo …".
-2. Filtros: solo Media (búsqueda por título o serial, género, tipo). Los módulos simples no llevan.
+2. Filtros: todos los módulos llevan buscador; los cuatro con estado llevan además el selector
+   activo/inactivo. Media filtra por texto, género y tipo. Se montan con `Filtros`, `Buscador` y
+   `Selector` de `components/Filtros.jsx`, nunca a mano.
 3. Tabla.
 4. Estados: cargando (spinner ámbar centrado y "Cargando …"), vacío (título, una frase y el botón
    de crear) y error (mensaje + botón reintentar). Los tres viven en el mismo contenedor de la tabla
@@ -176,6 +186,10 @@ Media no tiene estado: no se le pone columna de estado ni campo en el formulario
 - Al crear, los selects de género, director y productora muestran solo los activos; el de tipos,
   todos.
 - Mientras envía: botón deshabilitado con texto "Guardando…".
+- Al abrir, el foco va al primer campo (se escribe sin tocar el ratón).
+- Si hay cambios sin guardar, Cancelar y la X preguntan antes de cerrar y ESC no cierra; el módulo avisa con
+  la prop `sucio`, que se marca al primer cambio y se limpia al abrir el modal.
+- En Media, al escribir la url de la portada se ve la miniatura debajo del campo (`Portada`).
 
 ## 9. Mensajes y errores (mapeo de la API)
 
@@ -257,7 +271,7 @@ Lo que la auditoría encontró roto en el mockup y quedó corregido; todo módul
 
 - Login, registro o cualquier módulo de seguridad.
 - Subida de archivos: la portada es una URL.
-- Paginación, ordenamiento y filtros en los módulos simples.
+- Paginación (con estas cantidades no aporta) y los filtros del lado del servidor.
 - Pruebas automáticas y conmutador de tema claro/oscuro.
 
 ## 16. Estado de la base (nov 2026)
@@ -269,6 +283,8 @@ Ya está construida y verificada; nadie la reescribe, solo la usa:
   "No se pudo conectar con la API…". 409/404/400 usan el `{ error }` que manda el backend.
 - Los 5 archivos de `api/` con las cinco operaciones de su módulo.
 - `utils/formato.js`: `formatearFecha` (dd/mm/aaaa hh:mm), `iniciales` y `textoEstado`.
+- `utils/tabla.js`: `ordenarFilas` (por `columna.valor` o por la clave, con los vacíos al final) y
+  `filtrarPorTexto` (sin tildes ni mayúsculas, sobre una o varias propiedades).
 - Los 7 componentes compartidos y `Layout` con el indicador de la API (revisa cada 30 s).
 - `App.jsx` con las 6 rutas: `/` abre el Resumen y las otras cinco son los módulos.
 - `pages/ResumenPage.jsx` es la pantalla de entrada: cuenta las cinco colecciones con las listas que ya

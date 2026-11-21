@@ -7,6 +7,8 @@ import { confirmarBorrado, error as avisoError, exito } from '../components/avis
 import { actualizarProductora, crearProductora, eliminarProductora, listarProductoras } from '../api/productoras'
 import { listarMedia } from '../api/media'
 import { formatearFecha } from '../utils/formato'
+import Filtros, { Buscador, Selector } from '../components/Filtros'
+import { filtrarPorTexto, ordenarFilas } from '../utils/tabla'
 
 // Campos del formulario con los nombres del contrato: nombre, slogan, descripción y estado.
 const FORMULARIO_VACIO = { nombre: '', slogan: '', descripcion: '', estado: 'activo' }
@@ -18,11 +20,17 @@ export default function ProductorasPage() {
   const [media, setMedia] = useState([])
   const [cargando, setCargando] = useState(true)
   const [errorCarga, setErrorCarga] = useState(null)
+  const [filtroTexto, setFiltroTexto] = useState('')
+  const [filtroEstado, setFiltroEstado] = useState('')
+  // null = el orden que devuelve la API; al pulsar una columna se ordena aquí en el cliente.
+  const [orden, setOrden] = useState(null)
 
   const [modalAbierto, setModalAbierto] = useState(false)
   const [editando, setEditando] = useState(null) // null = creando
   const [formulario, setFormulario] = useState(FORMULARIO_VACIO)
   const [guardando, setGuardando] = useState(false)
+  // ¿Se tocó el formulario? Al cerrar con cambios sin guardar se pide confirmación.
+  const [tocado, setTocado] = useState(false)
 
   const cargar = useCallback(async () => {
     setCargando(true)
@@ -48,6 +56,7 @@ export default function ProductorasPage() {
   const abrirCrear = () => {
     setEditando(null)
     setFormulario(FORMULARIO_VACIO)
+    setTocado(false)
     setModalAbierto(true)
   }
 
@@ -59,11 +68,13 @@ export default function ProductorasPage() {
       descripcion: registro.descripcion || '',
       estado: registro.estado || 'activo',
     })
+    setTocado(false)
     setModalAbierto(true)
   }
 
   const cambiarCampo = (campo) => (evento) => {
     setFormulario((actual) => ({ ...actual, [campo]: evento.target.value }))
+    setTocado(true)
   }
 
   const guardar = async () => {
@@ -124,6 +135,7 @@ export default function ProductorasPage() {
       {
         clave: 'nombre',
         encabezado: 'Nombre',
+        ordenable: true,
         render: (registro) => (
           <>
             <div className="titulo-fila">{registro.nombre}</div>
@@ -134,6 +146,7 @@ export default function ProductorasPage() {
       {
         clave: 'descripcion',
         encabezado: 'Descripción',
+        ordenable: true,
         render: (registro) =>
           registro.descripcion ? (
             <span className="recortado" title={registro.descripcion}>
@@ -146,6 +159,7 @@ export default function ProductorasPage() {
       {
         clave: 'titulos',
         encabezado: 'Títulos',
+        ordenable: true,
         alineacion: 'derecha',
         render: (registro) => {
           const cuantos = conteo.get(String(registro._id)) || 0
@@ -155,11 +169,13 @@ export default function ProductorasPage() {
       {
         clave: 'estado',
         encabezado: 'Estado',
+        ordenable: true,
         render: (registro) => <BadgeEstado estado={registro.estado} />,
       },
       {
         clave: 'fechaActualizacion',
         encabezado: 'Actualizado',
+        ordenable: true,
         alineacion: 'derecha',
         render: (registro) => (
           <span className="mono">{formatearFecha(registro.fechaActualizacion)}</span>
@@ -167,6 +183,38 @@ export default function ProductorasPage() {
       },
     ],
     [conteo],
+  )
+
+  // Filtro y orden en el cliente: la lista completa ya está en memoria.
+  const filas = useMemo(() => {
+    const porTexto = filtrarPorTexto(registros, filtroTexto, ['nombre', 'slogan', 'descripcion'])
+    const porEstado = filtroEstado ? porTexto.filter((registro) => registro.estado === filtroEstado) : porTexto
+    const columna = columnas.find((c) => c.clave === orden?.campo)
+    return ordenarFilas(porEstado, columna, orden?.direccion || 'asc')
+  }, [registros, filtroTexto, filtroEstado, columnas, orden])
+
+  const alternarOrden = (columna) => {
+    setOrden((actual) =>
+      actual && actual.campo === columna.clave
+        ? { campo: columna.clave, direccion: actual.direccion === 'asc' ? 'desc' : 'asc' }
+        : { campo: columna.clave, direccion: 'asc' },
+    )
+  }
+
+  const filtros = (
+    <Filtros>
+      <Buscador
+        id="filtro-texto"
+        valor={filtroTexto}
+        onCambio={setFiltroTexto}
+        etiqueta="Buscar por nombre o descripción"
+      />
+      <Selector id="filtro-estado" valor={filtroEstado} onCambio={setFiltroEstado} etiqueta="Filtrar por estado">
+        <option value="">Todos los estados</option>
+        <option value="activo">Solo activos</option>
+        <option value="inactivo">Solo inactivos</option>
+      </Selector>
+    </Filtros>
   )
 
   const contador = `${registros.length} registro${registros.length === 1 ? '' : 's'}`
@@ -187,10 +235,18 @@ export default function ProductorasPage() {
       <TablaListado
         caption="Productoras registradas en el catálogo"
         columnas={columnas}
-        filas={registros}
+        filas={filas}
+        total={registros.length}
+        filtros={filtros}
+        orden={orden}
+        onOrdenar={alternarOrden}
         cargando={cargando}
         error={errorCarga}
         onReintentar={cargar}
+        sinResultados={{
+          titulo: 'Ninguna productora coincide con la búsqueda.',
+          texto: 'Prueba con otro nombre o quita los filtros.',
+        }}
         vacio={{
           titulo: 'Todavía no hay productoras registradas.',
           texto: 'Cuando agregues la primera, aparecerá en esta tabla.',
@@ -208,6 +264,7 @@ export default function ProductorasPage() {
         onCerrar={() => setModalAbierto(false)}
         onGuardar={guardar}
         guardando={guardando}
+        sucio={tocado}
       >
         <fieldset className="grupo">
           <legend>Datos de la productora</legend>

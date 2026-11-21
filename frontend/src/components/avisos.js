@@ -47,6 +47,24 @@ export function error(mensaje) {
   })
 }
 
+// Cerrar un formulario con datos escritos pide confirmación: perder lo tecleado por un
+// clic en la X o en Cancelar es de las cosas que más molestan de un panel.
+export async function confirmarDescartar() {
+  const resultado = await Swal.fire({
+    ...TEMA,
+    ...TEMA_BOTON_ACENTO,
+    customClass: CLASE_CONFIRMAR,
+    icon: 'warning',
+    title: '¿Descartar los cambios?',
+    text: 'Lo que escribiste en el formulario se pierde.',
+    showCancelButton: true,
+    confirmButtonText: 'Descartar',
+    cancelButtonText: 'Seguir editando',
+    focusCancel: true,
+  })
+  return resultado.isConfirmed
+}
+
 // Devuelve true solo si el usuario confirma. "Cancelar" es la opción por defecto.
 export async function confirmarBorrado(nombre) {
   const resultado = await Swal.fire({

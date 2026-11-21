@@ -19,6 +19,9 @@ import { IconoBorrar, IconoEditar } from './Iconos'
 //   nombreRegistro (fila) => string, para los aria-label de Editar/Eliminar
 //   onEditar       (fila) => void   (opcional)
 //   onEliminar     (fila) => void   (opcional)
+//   orden          { campo, direccion } | null   columna ordenada ahora mismo
+//   onOrdenar      (columna) => void   si se pasa, las columnas con `ordenable: true`
+//                  se pueden pulsar para ordenar; el módulo decide cómo ordenar
 const FILAS_ESQUELETO = 4
 
 export default function TablaListado({
@@ -35,6 +38,8 @@ export default function TablaListado({
   nombreRegistro,
   onEditar,
   onEliminar,
+  orden = null,
+  onOrdenar = null,
 }) {
   const totalRegistros = total ?? filas.length
   const conAcciones = Boolean(onEditar || onEliminar)
@@ -117,13 +122,34 @@ export default function TablaListado({
           <caption className="visually-hidden">{caption}</caption>
           <thead>
             <tr>
-              {columnas.map((columna) => (
-                <th key={columna.clave} scope="col" className={claseColumna(columna)}>
-                  {columna.encabezado || (
-                    <span className="visually-hidden">{columna.encabezadoOculto}</span>
-                  )}
-                </th>
-              ))}
+              {columnas.map((columna) => {
+                const activa = orden?.campo === columna.clave
+                return (
+                  <th
+                    key={columna.clave}
+                    scope="col"
+                    className={claseColumna(columna)}
+                    aria-sort={activa ? (orden.direccion === 'asc' ? 'ascending' : 'descending') : undefined}
+                  >
+                    {columna.ordenable && onOrdenar ? (
+                      <button
+                        type="button"
+                        className={`ordenar${activa ? ' activa' : ''}`}
+                        onClick={() => onOrdenar(columna)}
+                      >
+                        {columna.encabezado}
+                        <span className="ordenar__marca" aria-hidden="true">
+                          {activa ? (orden.direccion === 'asc' ? '↑' : '↓') : '↕'}
+                        </span>
+                      </button>
+                    ) : (
+                      columna.encabezado || (
+                        <span className="visually-hidden">{columna.encabezadoOculto}</span>
+                      )
+                    )}
+                  </th>
+                )
+              })}
               {conAcciones ? (
                 <th scope="col" className="text-end">
                   <span className="visually-hidden">Acciones</span>

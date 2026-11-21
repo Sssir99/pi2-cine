@@ -3,6 +3,8 @@ import EncabezadoPagina from '../components/EncabezadoPagina'
 import TablaListado from '../components/TablaListado'
 import ModalFormulario from '../components/ModalFormulario'
 import Portada from '../components/Portada'
+import Filtros, { Buscador, Selector } from '../components/Filtros'
+import { ordenarFilas } from '../utils/tabla'
 import { confirmarBorrado, error as avisoError, exito } from '../components/avisos'
 import { actualizarMedia, crearMedia, eliminarMedia, listarMedia } from '../api/media'
 import { listarGeneros } from '../api/generos'
@@ -58,11 +60,15 @@ export default function MediaPage() {
   const [filtroTexto, setFiltroTexto] = useState('')
   const [filtroGenero, setFiltroGenero] = useState('')
   const [filtroTipo, setFiltroTipo] = useState('')
+  // null = el orden que devuelve la API (más reciente primero); al pulsar una columna se ordena aquí.
+  const [orden, setOrden] = useState(null)
 
   const [modalAbierto, setModalAbierto] = useState(false)
   const [editando, setEditando] = useState(null)
   const [formulario, setFormulario] = useState(FORMULARIO_VACIO)
   const [guardando, setGuardando] = useState(false)
+  // ¿Se tocó el formulario? Al cerrar con cambios sin guardar se pide confirmación.
+  const [tocado, setTocado] = useState(false)
 
   const cargar = useCallback(async () => {
     setCargando(true)
@@ -118,6 +124,7 @@ export default function MediaPage() {
   const abrirCrear = () => {
     setEditando(null)
     setFormulario(FORMULARIO_VACIO)
+    setTocado(false)
     setModalAbierto(true)
   }
 
@@ -135,11 +142,13 @@ export default function MediaPage() {
       productora: registro.productora || '',
       tipo: registro.tipo || '',
     })
+    setTocado(false)
     setModalAbierto(true)
   }
 
   const cambiarCampo = (campo) => (evento) => {
     setFormulario((actual) => ({ ...actual, [campo]: evento.target.value }))
+    setTocado(true)
   }
 
   const guardar = async () => {
@@ -187,57 +196,88 @@ export default function MediaPage() {
     }
   }
 
-  const columnas = [
-    {
-      clave: 'portada',
-      encabezadoOculto: 'Portada',
-      render: (registro) => <Portada url={registro.imagenPortada} titulo={registro.titulo} />,
-    },
-    {
-      clave: 'titulo',
-      encabezado: 'Título',
-      render: (registro) => (
-        <>
-          <div className="titulo-fila">{registro.titulo}</div>
-          <div className="serial">{registro.serial}</div>
-        </>
-      ),
-    },
-    {
-      clave: 'anioEstreno',
-      encabezado: 'Año',
-      alineacion: 'derecha',
-      render: (registro) => (
-        <span className="anio">{registro.anioEstreno ?? '—'}</span>
-      ),
-    },
-    {
-      clave: 'genero',
-      encabezado: 'Género',
-      render: (registro) => (
-        <span className="genero">{nombreDe(mapaGeneros, registro.genero)}</span>
-      ),
-    },
-    {
-      clave: 'tipo',
-      encabezado: 'Tipo',
-      render: (registro) => {
-        const nombreTipo = nombreDe(mapaTipos, registro.tipo)
-        const esSerie = nombreTipo.toLowerCase().startsWith('serie')
-        return <span className={`tipo${esSerie ? ' tipo--serie' : ''}`}>{nombreTipo}</span>
+  const columnas = useMemo(
+    () => [
+      {
+        clave: 'portada',
+        encabezadoOculto: 'Portada',
+        render: (registro) => <Portada url={registro.imagenPortada} titulo={registro.titulo} />,
       },
-    },
-    {
-      clave: 'director',
-      encabezado: 'Director',
-      render: (registro) => nombreDe(mapaDirectores, registro.director),
-    },
-    {
-      clave: 'productora',
-      encabezado: 'Productora',
-      render: (registro) => nombreDe(mapaProductoras, registro.productora),
-    },
-  ]
+      {
+        clave: 'titulo',
+        encabezado: 'Título',
+        ordenable: true,
+        valor: (registro) => registro.titulo,
+        render: (registro) => (
+          <>
+            <div className="titulo-fila">{registro.titulo}</div>
+            <div className="serial">{registro.serial}</div>
+          </>
+        ),
+      },
+      {
+        clave: 'anioEstreno',
+        encabezado: 'Año',
+        alineacion: 'derecha',
+        ordenable: true,
+        valor: (registro) => registro.anioEstreno,
+        render: (registro) => (
+          <span className="anio">{registro.anioEstreno ?? '—'}</span>
+        ),
+      },
+      {
+        clave: 'genero',
+        encabezado: 'Género',
+        ordenable: true,
+        valor: (registro) => nombreDe(mapaGeneros, registro.genero),
+        render: (registro) => (
+          <span className="genero">{nombreDe(mapaGeneros, registro.genero)}</span>
+        ),
+      },
+      {
+        clave: 'tipo',
+        encabezado: 'Tipo',
+        ordenable: true,
+        valor: (registro) => nombreDe(mapaTipos, registro.tipo),
+        render: (registro) => {
+          const nombreTipo = nombreDe(mapaTipos, registro.tipo)
+          const esSerie = nombreTipo.toLowerCase().startsWith('serie')
+          return <span className={`tipo${esSerie ? ' tipo--serie' : ''}`}>{nombreTipo}</span>
+        },
+      },
+      {
+        clave: 'director',
+        encabezado: 'Director',
+        ordenable: true,
+        valor: (registro) => nombreDe(mapaDirectores, registro.director),
+        render: (registro) => nombreDe(mapaDirectores, registro.director),
+      },
+      {
+        clave: 'productora',
+        encabezado: 'Productora',
+        ordenable: true,
+        valor: (registro) => nombreDe(mapaProductoras, registro.productora),
+        render: (registro) => nombreDe(mapaProductoras, registro.productora),
+      },
+    ],
+    [mapaGeneros, mapaDirectores, mapaProductoras, mapaTipos],
+  )
+
+  // El orden va después de las columnas: necesita sus `valor()` para ordenar por el
+  // nombre del género o del director, no por el ObjectId.
+  const filasOrdenadas = useMemo(() => {
+    if (!orden) return filas
+    const columna = columnas.find((c) => c.clave === orden.campo)
+    return ordenarFilas(filas, columna, orden.direccion)
+  }, [filas, columnas, orden])
+
+  const alternarOrden = (columna) => {
+    setOrden((actual) =>
+      actual && actual.campo === columna.clave
+        ? { campo: columna.clave, direccion: actual.direccion === 'asc' ? 'desc' : 'asc' }
+        : { campo: columna.clave, direccion: 'asc' },
+    )
+  }
 
   const opcionesGenero = opcionesRelacion(generos, formulario.genero)
   const opcionesDirector = opcionesRelacion(directores, formulario.director)
@@ -249,26 +289,18 @@ export default function MediaPage() {
   }`
 
   const filtros = (
-    <div className="filtros">
-      <label className="visually-hidden" htmlFor="filtro-texto">
-        Buscar por título o serial
-      </label>
-      <input
+    <Filtros>
+      <Buscador
         id="filtro-texto"
-        className="campo"
-        placeholder="Buscar por título o serial"
-        value={filtroTexto}
-        onChange={(evento) => setFiltroTexto(evento.target.value)}
+        valor={filtroTexto}
+        onCambio={setFiltroTexto}
+        etiqueta="Buscar por título o serial"
       />
-
-      <label className="visually-hidden" htmlFor="filtro-genero">
-        Filtrar por género
-      </label>
-      <select
+      <Selector
         id="filtro-genero"
-        className="campo campo--corto"
-        value={filtroGenero}
-        onChange={(evento) => setFiltroGenero(evento.target.value)}
+        valor={filtroGenero}
+        onCambio={setFiltroGenero}
+        etiqueta="Filtrar por género"
       >
         <option value="">Todos los géneros</option>
         {generos.map((genero) => (
@@ -276,16 +308,12 @@ export default function MediaPage() {
             {genero.nombre}
           </option>
         ))}
-      </select>
-
-      <label className="visually-hidden" htmlFor="filtro-tipo">
-        Filtrar por tipo
-      </label>
-      <select
+      </Selector>
+      <Selector
         id="filtro-tipo"
-        className="campo campo--corto"
-        value={filtroTipo}
-        onChange={(evento) => setFiltroTipo(evento.target.value)}
+        valor={filtroTipo}
+        onCambio={setFiltroTipo}
+        etiqueta="Filtrar por tipo"
       >
         <option value="">Todos los tipos</option>
         {tipos.map((tipo) => (
@@ -293,8 +321,8 @@ export default function MediaPage() {
             {tipo.nombre}
           </option>
         ))}
-      </select>
-    </div>
+      </Selector>
+    </Filtros>
   )
 
   return (
@@ -312,9 +340,11 @@ export default function MediaPage() {
       <TablaListado
         caption="Películas y series registradas en el catálogo"
         columnas={columnas}
-        filas={filas}
+        filas={filasOrdenadas}
         total={media.length}
         filtros={filtros}
+        orden={orden}
+        onOrdenar={alternarOrden}
         cargando={cargando}
         error={errorCarga}
         onReintentar={cargar}
@@ -339,6 +369,7 @@ export default function MediaPage() {
         onCerrar={() => setModalAbierto(false)}
         onGuardar={guardar}
         guardando={guardando}
+        sucio={tocado}
       >
         <fieldset className="grupo">
           <legend>Datos del título</legend>
@@ -406,6 +437,12 @@ export default function MediaPage() {
               <div id="ayuda-portada" className="ayuda">
                 Si se deja vacía, se muestran las iniciales del título.
               </div>
+              {formulario.imagenPortada.trim() ? (
+                <div className="vista-portada">
+                  <Portada url={formulario.imagenPortada} titulo={formulario.titulo} />
+                  <span className="ayuda">Vista previa</span>
+                </div>
+              ) : null}
             </div>
 
             <div className="col-md-8">

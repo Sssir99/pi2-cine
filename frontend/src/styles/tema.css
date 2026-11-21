@@ -371,6 +371,14 @@ a {
   vertical-align: bottom;
 }
 
+/* Vista previa de la portada dentro del formulario de Media. */
+.vista-portada {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+  margin-top: var(--esp-2);
+}
+
 .serial {
   font-size: 12px;
   color: var(--texto-suave);
@@ -807,6 +815,39 @@ a {
   .esqueleto-bloque {
     animation: none;
   }
+}
+
+/* ---------- Ordenar por columna ---------- */
+
+.ordenar {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.ordenar:hover {
+  color: var(--texto);
+}
+
+.ordenar.activa {
+  color: var(--acento);
+}
+
+.ordenar__marca {
+  font-size: 10px;
+  opacity: 0.5;
+}
+
+.ordenar.activa .ordenar__marca {
+  opacity: 1;
 }
 
 /* ---------- Responsive ---------- */

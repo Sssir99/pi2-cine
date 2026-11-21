@@ -12,6 +12,8 @@ import BadgeEstado from '../components/BadgeEstado'
 import { confirmarBorrado, error as avisoError, exito } from '../components/avisos'
 import { actualizarGenero, crearGenero, eliminarGenero, listarGeneros } from '../api/generos'
 import { formatearFecha } from '../utils/formato'
+import Filtros, { Buscador, Selector } from '../components/Filtros'
+import { filtrarPorTexto, ordenarFilas } from '../utils/tabla'
 
 // Campos del formulario con los nombres del contrato (RUTAS.md), sin tildes.
 const FORMULARIO_VACIO = { nombre: '', descripcion: '', estado: 'activo' }
@@ -20,11 +22,17 @@ export default function GenerosPage() {
   const [registros, setRegistros] = useState([])
   const [cargando, setCargando] = useState(true)
   const [errorCarga, setErrorCarga] = useState(null)
+  const [filtroTexto, setFiltroTexto] = useState('')
+  const [filtroEstado, setFiltroEstado] = useState('')
+  // null = el orden que devuelve la API; al pulsar una columna se ordena aquí en el cliente.
+  const [orden, setOrden] = useState(null)
 
   const [modalAbierto, setModalAbierto] = useState(false)
   const [editando, setEditando] = useState(null) // null = creando
   const [formulario, setFormulario] = useState(FORMULARIO_VACIO)
   const [guardando, setGuardando] = useState(false)
+  // ¿Se tocó el formulario? Al cerrar con cambios sin guardar se pide confirmación.
+  const [tocado, setTocado] = useState(false)
 
   const cargar = useCallback(async () => {
     setCargando(true)
@@ -48,6 +56,7 @@ export default function GenerosPage() {
   const abrirCrear = () => {
     setEditando(null)
     setFormulario(FORMULARIO_VACIO)
+    setTocado(false)
     setModalAbierto(true)
   }
 
@@ -58,11 +67,13 @@ export default function GenerosPage() {
       descripcion: genero.descripcion || '',
       estado: genero.estado || 'activo',
     })
+    setTocado(false)
     setModalAbierto(true)
   }
 
   const cambiarCampo = (campo) => (evento) => {
     setFormulario((actual) => ({ ...actual, [campo]: evento.target.value }))
+    setTocado(true)
   }
 
   const guardar = async () => {
@@ -113,6 +124,7 @@ export default function GenerosPage() {
       {
         clave: 'nombre',
         encabezado: 'Nombre',
+        ordenable: true,
         // Misma celda de dos líneas que usa Media con título y serial: el nombre manda y
         // la descripción va debajo en gris. Evita una columna que solía quedar vacía.
         render: (genero) => (
@@ -125,11 +137,13 @@ export default function GenerosPage() {
       {
         clave: 'estado',
         encabezado: 'Estado',
+        ordenable: true,
         render: (genero) => <BadgeEstado estado={genero.estado} />,
       },
       {
         clave: 'fechaActualizacion',
         encabezado: 'Actualizado',
+        ordenable: true,
         alineacion: 'derecha',
         render: (genero) => (
           <span className="mono">{formatearFecha(genero.fechaActualizacion)}</span>
@@ -137,6 +151,38 @@ export default function GenerosPage() {
       },
     ],
     [],
+  )
+
+  // Filtro y orden en el cliente: la lista completa ya está en memoria.
+  const filas = useMemo(() => {
+    const porTexto = filtrarPorTexto(registros, filtroTexto, ['nombre', 'descripcion'])
+    const porEstado = filtroEstado ? porTexto.filter((registro) => registro.estado === filtroEstado) : porTexto
+    const columna = columnas.find((c) => c.clave === orden?.campo)
+    return ordenarFilas(porEstado, columna, orden?.direccion || 'asc')
+  }, [registros, filtroTexto, filtroEstado, columnas, orden])
+
+  const alternarOrden = (columna) => {
+    setOrden((actual) =>
+      actual && actual.campo === columna.clave
+        ? { campo: columna.clave, direccion: actual.direccion === 'asc' ? 'desc' : 'asc' }
+        : { campo: columna.clave, direccion: 'asc' },
+    )
+  }
+
+  const filtros = (
+    <Filtros>
+      <Buscador
+        id="filtro-texto"
+        valor={filtroTexto}
+        onCambio={setFiltroTexto}
+        etiqueta="Buscar por nombre o descripción"
+      />
+      <Selector id="filtro-estado" valor={filtroEstado} onCambio={setFiltroEstado} etiqueta="Filtrar por estado">
+        <option value="">Todos los estados</option>
+        <option value="activo">Solo activos</option>
+        <option value="inactivo">Solo inactivos</option>
+      </Selector>
+    </Filtros>
   )
 
   const contador = `${registros.length} registro${registros.length === 1 ? '' : 's'}`
@@ -156,10 +202,18 @@ export default function GenerosPage() {
       <TablaListado
         caption="Géneros registrados en el catálogo"
         columnas={columnas}
-        filas={registros}
+        filas={filas}
+        total={registros.length}
+        filtros={filtros}
+        orden={orden}
+        onOrdenar={alternarOrden}
         cargando={cargando}
         error={errorCarga}
         onReintentar={cargar}
+        sinResultados={{
+          titulo: 'Ningún género coincide con la búsqueda.',
+          texto: 'Prueba con otro nombre o quita los filtros.',
+        }}
         vacio={{
           titulo: 'Todavía no hay géneros registrados.',
           texto: 'Cuando agregues el primero, aparecerá en esta tabla.',
@@ -177,6 +231,7 @@ export default function GenerosPage() {
         onCerrar={() => setModalAbierto(false)}
         onGuardar={guardar}
         guardando={guardando}
+        sucio={tocado}
       >
         <fieldset className="grupo">
           <legend>Datos del género</legend>

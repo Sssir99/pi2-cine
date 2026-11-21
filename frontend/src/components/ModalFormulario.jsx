@@ -1,14 +1,23 @@
 import { useEffect, useRef } from 'react'
 import Modal from 'bootstrap/js/dist/modal'
+import { confirmarDescartar } from './avisos'
 
 // Un solo modal para crear y editar: cambia el título y los valores iniciales.
 // Los tres estados de la tabla los resuelve TablaListado; este componente solo
 // se ocupa del formulario y de cerrarse cuando toca.
 //
-// Props: abierto, titulo, onCerrar, onGuardar, guardando, children.
+// Props: abierto, titulo, onCerrar, onGuardar, guardando, sucio, children.
 // El botón "Guardar" envía el <form>, así que los `required` de los campos
 // funcionan sin escribir validación a mano.
-export default function ModalFormulario({ abierto, titulo, onCerrar, onGuardar, guardando, children }) {
+export default function ModalFormulario({
+  abierto,
+  titulo,
+  onCerrar,
+  onGuardar,
+  guardando,
+  sucio = false,
+  children,
+}) {
   const contenedor = useRef(null)
   const instancia = useRef(null)
   const cerrarRef = useRef(onCerrar)
@@ -40,13 +49,28 @@ export default function ModalFormulario({ abierto, titulo, onCerrar, onGuardar, 
   }, [abierto])
 
   // Mientras guarda no se cierra con ESC: evita que el usuario cierre a medias
-  // y se quede sin saber si el registro se creó.
+  // y se quede sin saber si el registro se creó. Con cambios sin guardar tampoco:
+  // el cierre pasa por Cancelar o la X, que sí preguntan.
   useEffect(() => {
-    if (instancia.current) instancia.current._config.keyboard = !guardando
-  }, [guardando])
+    if (instancia.current) instancia.current._config.keyboard = !guardando && !sucio
+  }, [guardando, sucio])
 
-  const cerrar = () => {
-    if (!guardando) onCerrar()
+  // Al abrir, el foco va al primer campo: se puede escribir sin tocar el ratón.
+  useEffect(() => {
+    const nodo = contenedor.current
+    if (!nodo) return undefined
+    const alMostrar = () => {
+      const primero = nodo.querySelector('input:not([type="hidden"]), select, textarea')
+      primero?.focus()
+    }
+    nodo.addEventListener('shown.bs.modal', alMostrar)
+    return () => nodo.removeEventListener('shown.bs.modal', alMostrar)
+  }, [])
+
+  const cerrar = async () => {
+    if (guardando) return
+    if (sucio && !(await confirmarDescartar())) return
+    onCerrar()
   }
 
   return (
