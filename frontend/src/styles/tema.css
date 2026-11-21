@@ -437,6 +437,11 @@ a {
 .titulo-fila {
   font-weight: 600;
   line-height: 1.2;
+  /* Dos líneas como máximo: un título largo (o una sinopsis) no debe estirar la fila. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 /* Segunda línea de una celda: descripción, slogan o cualquier dato de apoyo.

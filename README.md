@@ -79,7 +79,7 @@ Notas para el equipo:
 - Para cambiar una pantalla: **`GUIA_MODULO.md`**. `src/pages/MediaPage.jsx` es la referencia más completa;
   `PlantillaPage.ejemplo.jsx` es un molde histórico que ya no incluye filtros, orden ni aviso de cambios.
 - `npm test` corre las pruebas de Vitest (helpers y estados de la tabla).
-- `npm run demo` carga 5 títulos de ejemplo con sus relaciones y `npm run demo:limpiar` los borra.
+- `npm run demo` carga 15 títulos de ejemplo con sus relaciones y `npm run demo:limpiar` los borra.
 - Antes de tocar el frontend: `npm run humo` comprueba los 5 endpoints de la API con un ciclo
   crear/actualizar/borrar y te dice cuál está roto. Si ahí falla tu módulo, el problema es del backend.
 - Las reglas de diseño están en `DISENO_UI.md`: no se inventa nada que no esté ahí.

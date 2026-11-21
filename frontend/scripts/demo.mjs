@@ -1,16 +1,16 @@
-// Datos de ejemplo para grabar el video de la entrega 2.
+// Datos de ejemplo para llenar el panel antes de grabar o de enseñar el despliegue.
 //
-//   npm run demo           carga 5 títulos con sus relaciones (idempotente)
+//   npm run demo           carga el catálogo de ejemplo (idempotente)
 //   npm run demo:limpiar   borra solo lo que carga este script
 //
-// Va por la API igual que la app, no por Mongo directo: si algo falla, es un
-// problema real de la API y se ve en ese momento. No toca los géneros ni los
-// tipos del seed, solo los busca por nombre y los reutiliza.
+// Va por la API igual que la app, no por Mongo directo: si algo falla, es un problema real de
+// la API y se ve en ese momento. No toca los géneros ni los tipos del seed, los busca por
+// nombre y los reutiliza.
 //
-// Los datos son para la cámara: títulos conocidos, sinopsis corta y portada con
-// picsum (si la imagen no carga, la tabla cae a las iniciales, que es lo que hace
-// el componente Portada). Los seriales van con el prefijo CINE- para que el
-// limpiador sepa exactamente qué borrar y no toque nada del tutor ni de las pruebas.
+// Los títulos, directores y productoras son reales, para que las capturas y el video no
+// parezcan de relleno. Los seriales van con el prefijo CINE- para que el limpiador sepa
+// exactamente qué borrar y no toque nada del tutor ni de las pruebas. Las portadas son de
+// picsum (si no cargan, la tabla cae a las iniciales del título).
 
 const LIMPIAR = process.argv.includes('--limpiar')
 
@@ -26,20 +26,53 @@ function leerBase() {
 
 const BASE = leerBase()
 
-const GENEROS = ['ciencia ficción', 'drama']
-const TIPOS = ['película', 'serie']
+const GENEROS = [
+  { nombre: 'acción', descripcion: 'Persecuciones, peleas y ritmo alto.' },
+  { nombre: 'aventura', descripcion: 'Viajes, exploración y riesgo.' },
+  { nombre: 'ciencia ficción', descripcion: 'Futuro, tecnología y espacio.' },
+  { nombre: 'drama', descripcion: 'Conflictos humanos y personajes.' },
+  { nombre: 'terror', descripcion: 'Miedo, suspenso y lo sobrenatural.' },
+]
 
-const DIRECTORES = ['Christopher Nolan', 'Denis Villeneuve', 'Johan Renck', 'Vince Gilligan']
+const TIPOS = [
+  { nombre: 'película', descripcion: 'Obra única, con duración de largometraje.' },
+  { nombre: 'serie', descripcion: 'Varios episodios y temporadas.' },
+  { nombre: 'documental', descripcion: 'Hechos reales, sin ficción.' },
+]
+
+const DIRECTORES = [
+  'Christopher Nolan',
+  'Denis Villeneuve',
+  'Johan Renck',
+  'Vince Gilligan',
+  'Francis Ford Coppola',
+  'George Miller',
+  'Stanley Kubrick',
+  'Bong Joon-ho',
+  'Alfonso Cuarón',
+  'Hayao Miyazaki',
+  'Peter Jackson',
+  'The Duffer Brothers',
+  'David Benioff',
+  'Greta Gerwig',
+]
+
 const PRODUCTORAS = [
   'Warner Bros',
   'Legendary Pictures',
   'HBO',
   'FilmNation Entertainment',
   'Sony Pictures Television',
+  'Paramount',
+  'Neon',
+  'Netflix',
+  'Studio Ghibli',
+  'New Line Cinema',
+  'Sony Pictures',
 ]
 
-// Slogan y descripción de cada productora: sin ellos la tabla se ve vacía y el panel
-// parece a medio llenar. Solo se rellenan si están en blanco.
+// Slogan y descripción de cada productora: sin ellos la tabla se ve vacía y el panel parece a
+// medio llenar. Solo se rellenan si están en blanco.
 const DATOS_PRODUCTORA = {
   'Warner Bros': {
     slogan: 'El estudio que inventó el cine sonoro.',
@@ -60,6 +93,30 @@ const DATOS_PRODUCTORA = {
   'Sony Pictures Television': {
     slogan: 'Series para todos los públicos.',
     descripcion: 'División televisiva de Sony Pictures.',
+  },
+  Paramount: {
+    slogan: 'El estudio de la montaña.',
+    descripcion: 'Productora y distribuidora estadounidense fundada en 1912.',
+  },
+  Neon: {
+    slogan: 'Cine que sorprende.',
+    descripcion: 'Distribuidora independiente estadounidense, detrás de Parásitos.',
+  },
+  Netflix: {
+    slogan: 'Solo en Netflix.',
+    descripcion: 'Plataforma y productora de cine y series para todo el mundo.',
+  },
+  'Studio Ghibli': {
+    slogan: 'La magia de la animación japonesa.',
+    descripcion: 'Estudio de animación fundado en 1985 por Miyazaki y Takahata.',
+  },
+  'New Line Cinema': {
+    slogan: 'El hogar de la Tierra Media.',
+    descripcion: 'Productora estadounidense, hoy parte de Warner Bros.',
+  },
+  'Sony Pictures': {
+    slogan: 'Cine para todos.',
+    descripcion: 'División cinematográfica de Sony, heredera de Columbia Pictures.',
   },
 }
 
@@ -129,6 +186,136 @@ const TITULOS = [
     director: 'Vince Gilligan',
     productora: 'Sony Pictures Television',
   },
+  {
+    serial: 'CINE-006',
+    titulo: 'El padrino',
+    sinopsis:
+      'El patriarca de una familia mafiosa intenta pasarle el mando a su hijo menor, que no quería saber nada del negocio.',
+    url: 'https://cdn.picine.dev/peliculas/el-padrino.mp4',
+    imagenPortada: 'https://picsum.photos/seed/elpadrino/300/450',
+    anioEstreno: 1972,
+    genero: 'drama',
+    tipo: 'película',
+    director: 'Francis Ford Coppola',
+    productora: 'Paramount',
+  },
+  {
+    serial: 'CINE-007',
+    titulo: 'Mad Max: Furia en la carretera',
+    sinopsis:
+      'En un desierto postapocalíptico, una fugitiva y un superviviente huyen de un ejército de motoristas.',
+    url: 'https://cdn.picine.dev/peliculas/mad-max-fury-road.mp4',
+    imagenPortada: 'https://picsum.photos/seed/madmax/300/450',
+    anioEstreno: 2015,
+    genero: 'acción',
+    tipo: 'película',
+    director: 'George Miller',
+    productora: 'Warner Bros',
+  },
+  {
+    serial: 'CINE-008',
+    titulo: 'El resplandor',
+    sinopsis:
+      'Un escritor se queda como vigilante de un hotel de montaña cerrado por el invierno y empieza a perder la cabeza.',
+    url: 'https://cdn.picine.dev/peliculas/el-resplandor.mp4',
+    imagenPortada: 'https://picsum.photos/seed/resplandor/300/450',
+    anioEstreno: 1980,
+    genero: 'terror',
+    tipo: 'película',
+    director: 'Stanley Kubrick',
+    productora: 'Warner Bros',
+  },
+  {
+    serial: 'CINE-009',
+    titulo: 'Parásitos',
+    sinopsis:
+      'Una familia sin recursos se infiltra poco a poco en la casa de una familia rica, hasta que todo se tuerce.',
+    url: 'https://cdn.picine.dev/peliculas/parasitos.mp4',
+    imagenPortada: 'https://picsum.photos/seed/parasitos/300/450',
+    anioEstreno: 2019,
+    genero: 'drama',
+    tipo: 'película',
+    director: 'Bong Joon-ho',
+    productora: 'Neon',
+  },
+  {
+    serial: 'CINE-010',
+    titulo: 'Roma',
+    sinopsis:
+      'La vida de una empleada doméstica en una colonia de Ciudad de México a comienzos de los setenta.',
+    url: 'https://cdn.picine.dev/peliculas/roma.mp4',
+    imagenPortada: 'https://picsum.photos/seed/roma/300/450',
+    anioEstreno: 2018,
+    genero: 'drama',
+    tipo: 'película',
+    director: 'Alfonso Cuarón',
+    productora: 'Netflix',
+  },
+  {
+    serial: 'CINE-011',
+    titulo: 'El viaje de Chihiro',
+    sinopsis:
+      'Una niña entra sin querer en el mundo de los espíritus y tiene que trabajar en una casa de baños para salvar a sus padres.',
+    url: 'https://cdn.picine.dev/peliculas/el-viaje-de-chihiro.mp4',
+    imagenPortada: 'https://picsum.photos/seed/chihiro/300/450',
+    anioEstreno: 2001,
+    genero: 'aventura',
+    tipo: 'película',
+    director: 'Hayao Miyazaki',
+    productora: 'Studio Ghibli',
+  },
+  {
+    serial: 'CINE-012',
+    titulo: 'El señor de los anillos: la comunidad del anillo',
+    sinopsis:
+      'Un hobbit hereda un anillo que hay que destruir en el único lugar donde puede hacerse: el fuego del Monte del Destino.',
+    url: 'https://cdn.picine.dev/peliculas/la-comunidad-del-anillo.mp4',
+    imagenPortada: 'https://picsum.photos/seed/comunidad/300/450',
+    anioEstreno: 2001,
+    genero: 'aventura',
+    tipo: 'película',
+    director: 'Peter Jackson',
+    productora: 'New Line Cinema',
+  },
+  {
+    serial: 'CINE-013',
+    titulo: 'Stranger Things',
+    sinopsis:
+      'La desaparición de un niño en un pueblo de Indiana destapa un laboratorio, un monstruo y una niña con poderes.',
+    url: 'https://cdn.picine.dev/series/stranger-things.mp4',
+    imagenPortada: 'https://picsum.photos/seed/strangerthings/300/450',
+    anioEstreno: 2016,
+    genero: 'ciencia ficción',
+    tipo: 'serie',
+    director: 'The Duffer Brothers',
+    productora: 'Netflix',
+  },
+  {
+    serial: 'CINE-014',
+    titulo: 'Juego de tronos',
+    sinopsis:
+      'Nueve familias se disputan el Trono de Hierro mientras una amenaza antigua despierta al norte del muro.',
+    url: 'https://cdn.picine.dev/series/juego-de-tronos.mp4',
+    imagenPortada: 'https://picsum.photos/seed/juegodetronos/300/450',
+    anioEstreno: 2011,
+    genero: 'aventura',
+    tipo: 'serie',
+    director: 'David Benioff',
+    productora: 'HBO',
+  },
+  {
+    serial: 'CINE-015',
+    titulo: 'Mujercitas',
+    sinopsis:
+      'Cuatro hermanas crecen en la guerra civil estadounidense y descubren qué quieren ser, cada una a su manera.',
+    url: 'https://cdn.picine.dev/peliculas/mujercitas.mp4',
+    imagenPortada: 'https://picsum.photos/seed/mujercitas/300/450',
+    anioEstreno: 2019,
+    genero: 'drama',
+    tipo: 'película',
+    director: 'Greta Gerwig',
+    productora: 'Sony Pictures',
+  },
 ]
 
 async function pedir(metodo, ruta, cuerpo) {
@@ -186,13 +373,13 @@ async function cargar() {
   console.log(`Cargando el catálogo de ejemplo en ${BASE}\n`)
 
   const generos = {}
-  for (const nombre of GENEROS) {
-    generos[nombre] = await asegurar('/generos', 'nombre', nombre, { nombre }, `género "${nombre}"`)
+  for (const genero of GENEROS) {
+    generos[genero.nombre] = await asegurar('/generos', 'nombre', genero.nombre, genero, `género "${genero.nombre}"`)
   }
 
   const tipos = {}
-  for (const nombre of TIPOS) {
-    tipos[nombre] = await asegurar('/tipos', 'nombre', nombre, { nombre }, `tipo "${nombre}"`)
+  for (const tipo of TIPOS) {
+    tipos[tipo.nombre] = await asegurar('/tipos', 'nombre', tipo.nombre, tipo, `tipo "${tipo.nombre}"`)
   }
 
   const directores = {}
@@ -262,8 +449,8 @@ async function limpiar() {
   }
   if (borrados === 0) console.log('  no había títulos de ejemplo cargados')
 
-  // Directores y productoras solo se borran si ya nada los referencia: si el tutor
-  // los usó en un título suyo, se quedan.
+  // Directores y productoras solo se borran si ya nada los referencia: si el tutor los usó en
+  // un título suyo, se quedan.
   const media = await lista('/media')
   const enUso = new Set()
   for (const m of media) {
