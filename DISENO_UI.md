@@ -37,8 +37,10 @@ Prohibido `style={{...}}` salvo valores dinámicos (por ejemplo el ancho de una 
 
 ## 3. Colores
 
-Tema A (oscuro, elegido para todo el frontend). Todos los colores viven como variables en
-`tema.css`; ningún componente escribe un hex directo.
+Tema A (oscuro) por defecto y tema B (claro) conmutable. Todos los colores viven como variables en
+`tema.css`; ningún componente escribe un hex directo. El tema se cambia con `data-tema="claro"` en
+`<html>` (y `data-bs-theme="light"` para los componentes de Bootstrap), se guarda en `localStorage` y
+se aplica antes de pintar desde un script en `index.html`.
 
 | Token           | Valor   | Uso |
 |-----------------|---------|-----|
@@ -272,7 +274,7 @@ Lo que la auditoría encontró roto en el mockup y quedó corregido; todo módul
 - Login, registro o cualquier módulo de seguridad.
 - Subida de archivos: la portada es una URL.
 - Paginación (con estas cantidades no aporta) y los filtros del lado del servidor.
-- Pruebas automáticas y conmutador de tema claro/oscuro.
+- Despliegue en la nube: es la evidencia siguiente del curso.
 
 ## 16. Estado de la base (nov 2026)
 
@@ -285,6 +287,11 @@ Ya está construida y verificada; nadie la reescribe, solo la usa:
 - `utils/formato.js`: `formatearFecha` (dd/mm/aaaa hh:mm), `iniciales` y `textoEstado`.
 - `utils/tabla.js`: `ordenarFilas` (por `columna.valor` o por la clave, con los vacíos al final) y
   `filtrarPorTexto` (sin tildes ni mayúsculas, sobre una o varias propiedades).
+- Pruebas: `npm test` (Vitest) cubre `utils/formato.js`, `utils/tabla.js` y los estados de
+  `TablaListado` (esqueleto, error con Reintentar, vacío, sin resultados, acciones con aria-label y
+  `aria-sort`). `npm run test:watch` para desarrollo.
+- Tema: `[data-tema='claro']` sobreescribe los mismos tokens con la paleta del mockup B; el botón está
+  al pie del menú y la elección persiste en `localStorage`.
 - Los 7 componentes compartidos y `Layout` con el indicador de la API (revisa cada 30 s).
 - `App.jsx` con las 6 rutas: `/` abre el Resumen y las otras cinco son los módulos.
 - `pages/ResumenPage.jsx` es la pantalla de entrada: cuenta las cinco colecciones con las listas que ya

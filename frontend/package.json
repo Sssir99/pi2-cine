@@ -10,7 +10,9 @@
     "humo": "node scripts/humo.mjs",
     "demo": "node scripts/demo.mjs",
     "demo:limpiar": "node scripts/demo.mjs --limpiar",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "axios": "^1.21.1",
@@ -21,10 +23,15 @@
     "sweetalert2": "^11.26.25"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^8.0.0",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.13",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
+    "jsdom": "^31.0.1",
     "oxlint": "^1.90.0",
-    "vite": "^8.3.6"
+    "vite": "^8.3.6",
+    "vitest": "^5.1.1"
   }
 }
