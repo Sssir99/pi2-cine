@@ -261,13 +261,16 @@ Ya está construida y verificada; nadie la reescribe, solo la usa:
 - Los 5 archivos de `api/` con las cinco operaciones de su módulo.
 - `utils/formato.js`: `formatearFecha` (dd/mm/aaaa hh:mm), `iniciales` y `textoEstado`.
 - Los 7 componentes compartidos y `Layout` con el indicador de la API (revisa cada 30 s).
-- `App.jsx` con las 5 rutas; `/` redirige a `/media`.
+- `App.jsx` con las 6 rutas: `/` abre el Resumen y las otras cinco son los módulos.
+- `pages/ResumenPage.jsx` es la pantalla de entrada: cuenta las cinco colecciones con las listas que ya
+  existen (sin endpoints nuevos), muestra los últimos títulos agregados y el reparto por género en barras.
+  Cada tarjeta de cifra enlaza a su módulo.
 - `pages/MediaPage.jsx` completa, como plantilla de referencia: tabla con portada, título + serial, año,
   género, tipo, director y productora traducidos desde las otras 4 listas ("(eliminado)" si falta la
   referencia), filtros por texto/género/tipo, y el modal con los 4 selects (activos al crear; el actual se
   incluye aunque esté inactivo al editar).
-- `pages/*Page.jsx` de los otros 4 módulos son avisos de "en construcción": cada integrante reemplaza el
-  suyo copiando `PlantillaPage.ejemplo.jsx` y siguiendo `GUIA_MODULO.md`.
+- `pages/*Page.jsx` de los otros 4 módulos ya están construidos (los hizo cada integrante en la entrega 2)
+  y usan el mismo molde que `MediaPage.jsx`.
 - `PlantillaPage.ejemplo.jsx` es una pantalla CRUD completa y funcionando (~250 líneas comentadas) que no
   está conectada a ninguna ruta. Verificada en el navegador contra la API antes de publicarla: lista,
   crear, editar (con el cambio a inactivo) y borrar con confirmación.

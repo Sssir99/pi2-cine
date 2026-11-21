@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom'
 import { comprobarApi } from '../api/cliente'
 
 const MODULOS = [
+  { ruta: '/', nombre: 'Resumen', exacta: true },
   { ruta: '/media', nombre: 'Media' },
   { ruta: '/generos', nombre: 'Géneros' },
   { ruta: '/directores', nombre: 'Directores' },
@@ -46,6 +47,7 @@ export default function Layout({ children }) {
             <NavLink
               key={modulo.ruta}
               to={modulo.ruta}
+              end={modulo.exacta}
               className={({ isActive }) => `nav-item${isActive ? ' activo' : ''}`}
             >
               {modulo.nombre}
