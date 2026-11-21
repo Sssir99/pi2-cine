@@ -13,6 +13,19 @@ const app = express();
 
 app.use(express.json());
 
+// El contrato dice que fechaCreacion y fechaActualizacion las pone el sistema y NO se aceptan
+// en el body, y el _id sale siempre de la URL. Se limpian aquí una sola vez, para que ningún
+// módulo tenga que repetirlo. Sin esto: un POST guardaba la fecha que mandara el cliente y un
+// PUT con _id en el cuerpo terminaba en un 500 de Mongo ("immutable field").
+app.use((req, res, next) => {
+  if (req.body && typeof req.body === 'object') {
+    delete req.body._id;
+    delete req.body.fechaCreacion;
+    delete req.body.fechaActualizacion;
+  }
+  next();
+});
+
 // CORS: la app de React corre en otro puerto (Vite 5173 / CRA 3000), así que el navegador
 // necesita permiso explícito. En desarrollo se permite cualquier origen; si algún día se
 // publica, se restringe con cors({ origin: ['https://midominio.com'] }).

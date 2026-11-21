@@ -23,12 +23,23 @@ function mensajeDe(status, datos) {
   return datos?.error || 'Ocurrió un error en el servidor. Intenta de nuevo.'
 }
 
+// Cualquier respuesta del servidor (aunque sea un 409 o un 404) significa que la API está
+// viva. Se avisa por un evento para que el indicador del pie se ponga en verde al instante,
+// sin esperar al sondeo de 30 s ni a que el usuario recargue.
+function avisarApiViva() {
+  window.dispatchEvent(new Event('api:viva'))
+}
+
 cliente.interceptors.response.use(
-  (respuesta) => respuesta,
+  (respuesta) => {
+    avisarApiViva()
+    return respuesta
+  },
   (error) => {
     if (!error.response) {
       return Promise.reject({ status: 0, mensaje: MENSAJE_SIN_API })
     }
+    avisarApiViva()
     const { status, data } = error.response
     return Promise.reject({ status, mensaje: mensajeDe(status, data) })
   },

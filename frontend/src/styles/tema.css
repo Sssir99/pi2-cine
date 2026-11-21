@@ -372,6 +372,13 @@ a {
   font-size: 14px;
 }
 
+/* Bootstrap deja los .visually-hidden en position:absolute. Sin un ancestro posicionado se
+   escapan del recorte de la tabla y, cuando la tabla no cabe a lo ancho, ensanchan la página
+   entera (medido: 23 px de scroll horizontal a 1024). Con relative se quedan dentro. */
+.table-responsive {
+  position: relative;
+}
+
 .table thead th {
   font-size: 12px;
   text-transform: uppercase;

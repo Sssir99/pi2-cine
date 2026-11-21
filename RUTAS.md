@@ -10,6 +10,7 @@ Todos los endpoints responden JSON.
 - `fechaCreacion` y `fechaActualizacion` las pone el sistema: NO se envían ni se aceptan en el body del POST/PUT.
 - Media: al crear o actualizar, el backend debe validar que `genero`, `director` y `productora` existan y tengan estado `activo`, y que `tipo` exista.
 - Integridad: un género, director, productora o tipo que esté en uso por algún título NO se puede eliminar. El DELETE responde 409 e indica cuántos títulos lo usan, para no dejar Media con referencias muertas.
+- Si el body trae `_id`, `fechaCreacion` o `fechaActualizacion`, se ignoran: el id sale de la URL y las fechas las pone el sistema.
 
 ## Géneros — /api/generos
 

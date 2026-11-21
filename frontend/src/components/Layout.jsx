@@ -48,10 +48,16 @@ export default function Layout({ children }) {
       if (vivo) setApiEnLinea(estado)
     }
 
+    // Si cualquier petición de la app recibe respuesta, la API está viva: el pie se pone
+    // en verde en ese momento en vez de esperar hasta el siguiente sondeo.
+    const alVivir = () => setApiEnLinea(true)
+    window.addEventListener('api:viva', alVivir)
+
     comprobar()
     const intervalo = setInterval(comprobar, INTERVALO_API)
     return () => {
       vivo = false
+      window.removeEventListener('api:viva', alVivir)
       clearInterval(intervalo)
     }
   }, [])

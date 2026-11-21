@@ -33,7 +33,9 @@ function Panel() {
 
 export default function App() {
   return (
-    <BrowserRouter>
+    // Los dos flags de la v7 quitan los avisos que React Router 6 deja en la consola en
+    // cada carga; el comportamiento no cambia y la consola queda limpia en la grabación.
+    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <Panel />
     </BrowserRouter>
   )
